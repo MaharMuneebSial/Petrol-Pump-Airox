@@ -97,7 +97,7 @@ export default function SignInPage() {
       }
 
       const emailMatch = company.email === form.email.trim().toLowerCase();
-      const passMatch = company.password_hash === form.password;
+      const passMatch = company.password === form.password;
 
       if (!emailMatch || !passMatch) {
         setAuthError('Invalid Email or Password.');
