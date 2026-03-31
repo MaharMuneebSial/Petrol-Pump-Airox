@@ -9,12 +9,15 @@ export default function CashPayablePage() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const accounts = getAccounts();
-    const suppliers = accounts.filter(a => a.type === 'Supplier');
-    setData(suppliers.map(s => ({
-      ...s,
-      balance: parseFloat(s.currentBalance || 0),
-    })).filter(s => s.balance > 0));
+    const load = async () => {
+      const accounts = await getAccounts();
+      const suppliers = accounts.filter(a => a.type === 'Supplier');
+      setData(suppliers.map(s => ({
+        ...s,
+        balance: parseFloat(s.currentBalance || 0),
+      })).filter(s => s.balance > 0));
+    };
+    load();
   }, []);
 
   const total = data.reduce((s, d) => s + d.balance, 0);

@@ -8,31 +8,31 @@ export default function SummarySheetPage() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    const sales = getSales();
-    const purchases = getPurchases();
-    const expenses = getExpenses();
-    const vouchers = getVouchers();
-    const products = getProducts();
-    const accounts = getAccounts();
+    const load = async () => {
+      const [sales, purchases, expenses, vouchers, products, accounts] = await Promise.all([
+        getSales(), getPurchases(), getExpenses(), getVouchers(), getProducts(), getAccounts(),
+      ]);
 
-    const totalSales = sales.reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const cashSales = sales.filter(s => s.paymentMode === 'cash').reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const creditSales = sales.filter(s => s.paymentMode === 'credit').reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const totalPurchases = purchases.reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const totalExpenses = expenses.reduce((s, v) => s + parseFloat(v.amount || 0), 0);
-    const receipts = vouchers.filter(v => v.type === 'receipt').reduce((s, v) => s + parseFloat(v.amount || 0), 0);
-    const payments = vouchers.filter(v => v.type === 'payment').reduce((s, v) => s + parseFloat(v.amount || 0), 0);
-    const grossProfit = totalSales - totalPurchases;
-    const netProfit = grossProfit - totalExpenses;
-    const totalReceivable = accounts.filter(a => a.type === 'Customer').reduce((s, a) => s + Math.max(0, parseFloat(a.currentBalance || 0)), 0);
-    const totalPayable = accounts.filter(a => a.type === 'Supplier').reduce((s, a) => s + Math.max(0, parseFloat(a.currentBalance || 0)), 0);
-    const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
+      const totalSales = sales.reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const cashSales = sales.filter(s => s.paymentMode === 'cash').reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const creditSales = sales.filter(s => s.paymentMode === 'credit').reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const totalPurchases = purchases.reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const totalExpenses = expenses.reduce((s, v) => s + parseFloat(v.amount || 0), 0);
+      const receipts = vouchers.filter(v => v.type === 'receipt').reduce((s, v) => s + parseFloat(v.amount || 0), 0);
+      const payments = vouchers.filter(v => v.type === 'payment').reduce((s, v) => s + parseFloat(v.amount || 0), 0);
+      const grossProfit = totalSales - totalPurchases;
+      const netProfit = grossProfit - totalExpenses;
+      const totalReceivable = accounts.filter(a => a.type === 'Customer').reduce((s, a) => s + Math.max(0, parseFloat(a.currentBalance || 0)), 0);
+      const totalPayable = accounts.filter(a => a.type === 'Supplier').reduce((s, a) => s + Math.max(0, parseFloat(a.currentBalance || 0)), 0);
+      const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
 
-    setData({
-      totalSales, cashSales, creditSales, totalPurchases, totalExpenses,
-      receipts, payments, grossProfit, netProfit, totalReceivable, totalPayable,
-      stockValue, salesCount: sales.length, purchasesCount: purchases.length,
-    });
+      setData({
+        totalSales, cashSales, creditSales, totalPurchases, totalExpenses,
+        receipts, payments, grossProfit, netProfit, totalReceivable, totalPayable,
+        stockValue, salesCount: sales.length, purchasesCount: purchases.length,
+      });
+    };
+    load();
   }, []);
 
   if (!data) return <div className="py-20 text-center" style={{ color: '#94a3b8' }}>Loading...</div>;

@@ -46,8 +46,13 @@ export default function AddSalePage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    setProducts(getProducts());
-    setCustomers(getAccounts().filter(a => a.type === 'Customer'));
+    const load = async () => {
+      const prods = await getProducts();
+      const accs = await getAccounts();
+      setProducts(prods);
+      setCustomers(accs.filter(a => a.type === 'Customer'));
+    };
+    load();
   }, []);
 
   const handleChange = (field) => (e) => {
@@ -60,7 +65,7 @@ export default function AddSalePage() {
         updated.total = (qty * rate).toFixed(2);
       }
       if (field === 'productId') {
-        const prod = getProducts().find(pr => pr.id === val);
+        const prod = products.find(pr => pr.id === val);
         if (prod) updated.rate = prod.rate?.toString() || '';
         const qty = parseFloat(p.quantity) || 0;
         updated.total = (qty * parseFloat(prod?.rate || 0)).toFixed(2);
@@ -80,12 +85,12 @@ export default function AddSalePage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addSale({
+    await addSale({
       customerId: form.customerId || null,
       productId: form.productId,
       quantity: parseFloat(form.quantity),
@@ -95,10 +100,9 @@ export default function AddSalePage() {
       date: form.date,
       note: form.note.trim(),
     });
-    setTimeout(() => {
-      setLoading(false); setSuccess(true);
-      setTimeout(() => router.push('/dashboard/sales'), 1000);
-    }, 500);
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => router.push('/dashboard/sales'), 1000);
   };
 
   return (

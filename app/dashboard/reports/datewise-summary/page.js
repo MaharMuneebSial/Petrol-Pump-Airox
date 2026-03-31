@@ -10,27 +10,28 @@ export default function DatewiseSummaryPage() {
   const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
-    const sales = getSales();
-    const purchases = getPurchases();
-    const expenses = getExpenses();
+    const load = async () => {
+      const [sales, purchases, expenses] = await Promise.all([getSales(), getPurchases(), getExpenses()]);
 
-    const dateMap = {};
-    const addEntry = (date, type, amount) => {
-      if (!date) return;
-      const d = date.slice(0, 10);
-      if (!dateMap[d]) dateMap[d] = { sales: 0, purchases: 0, expenses: 0 };
-      dateMap[d][type] += parseFloat(amount || 0);
+      const dateMap = {};
+      const addEntry = (date, type, amount) => {
+        if (!date) return;
+        const d = date.slice(0, 10);
+        if (!dateMap[d]) dateMap[d] = { sales: 0, purchases: 0, expenses: 0 };
+        dateMap[d][type] += parseFloat(amount || 0);
+      };
+
+      sales.forEach(s => addEntry(s.date, 'sales', s.total));
+      purchases.forEach(p => addEntry(p.date, 'purchases', p.total));
+      expenses.forEach(e => addEntry(e.date, 'expenses', e.amount));
+
+      const sorted = Object.entries(dateMap)
+        .sort((a, b) => new Date(b[0]) - new Date(a[0]))
+        .map(([date, d]) => ({ date, ...d, profit: d.sales - d.purchases - d.expenses }));
+
+      setRows(sorted);
     };
-
-    sales.forEach(s => addEntry(s.date || s.createdAt, 'sales', s.total));
-    purchases.forEach(p => addEntry(p.date || p.createdAt, 'purchases', p.total));
-    expenses.forEach(e => addEntry(e.date || e.createdAt, 'expenses', e.amount));
-
-    const sorted = Object.entries(dateMap)
-      .sort((a, b) => new Date(b[0]) - new Date(a[0]))
-      .map(([date, d]) => ({ date, ...d, profit: d.sales - d.purchases - d.expenses }));
-
-    setRows(sorted);
+    load();
   }, []);
 
   const filtered = rows.filter(r => {

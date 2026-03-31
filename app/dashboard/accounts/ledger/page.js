@@ -14,36 +14,43 @@ function LedgerContent() {
 
   useEffect(() => {
     if (!id) return;
-    const acc = getAccountById(id);
-    setAccount(acc);
-    if (!acc) return;
+    const load = async () => {
+      const acc = await getAccountById(id);
+      setAccount(acc);
+      if (!acc) return;
 
-    const sales = getSales().filter(s => s.customerId === id).map(s => ({
-      date: s.date || s.createdAt?.slice(0, 10),
-      type: 'Sale',
-      description: `Sale - ${s.note || 'Product sale'}`,
-      debit: s.paymentMode === 'credit' ? parseFloat(s.total || 0) : 0,
-      credit: s.paymentMode !== 'credit' ? parseFloat(s.total || 0) : 0,
-    }));
+      const allSales = await getSales();
+      const allPurchases = await getPurchases();
+      const allVouchers = await getVouchers();
 
-    const purchases = getPurchases().filter(p => p.supplierId === id).map(p => ({
-      date: p.date || p.createdAt?.slice(0, 10),
-      type: 'Purchase',
-      description: `Purchase - ${p.note || 'Product purchase'}`,
-      debit: 0,
-      credit: parseFloat(p.total || 0),
-    }));
+      const salesEntries = allSales.filter(s => s.customerId === id).map(s => ({
+        date: s.date,
+        type: 'Sale',
+        description: `Sale - ${s.note || 'Product sale'}`,
+        debit: s.paymentMode === 'credit' ? parseFloat(s.total || 0) : 0,
+        credit: s.paymentMode !== 'credit' ? parseFloat(s.total || 0) : 0,
+      }));
 
-    const vouchers = getVouchers().filter(v => v.accountId === id).map(v => ({
-      date: v.date || v.createdAt?.slice(0, 10),
-      type: v.type === 'receipt' ? 'Cash Receipt' : 'Cash Payment',
-      description: v.description || (v.type === 'receipt' ? 'Cash received' : 'Cash paid'),
-      debit: v.type === 'payment' ? parseFloat(v.amount || 0) : 0,
-      credit: v.type === 'receipt' ? parseFloat(v.amount || 0) : 0,
-    }));
+      const purchaseEntries = allPurchases.filter(p => p.supplierId === id).map(p => ({
+        date: p.date,
+        type: 'Purchase',
+        description: `Purchase - ${p.note || 'Product purchase'}`,
+        debit: 0,
+        credit: parseFloat(p.total || 0),
+      }));
 
-    const all = [...sales, ...purchases, ...vouchers].sort((a, b) => new Date(a.date) - new Date(b.date));
-    setEntries(all);
+      const voucherEntries = allVouchers.filter(v => v.accountId === id).map(v => ({
+        date: v.date,
+        type: v.type === 'receipt' ? 'Cash Receipt' : 'Cash Payment',
+        description: v.description || (v.type === 'receipt' ? 'Cash received' : 'Cash paid'),
+        debit: v.type === 'payment' ? parseFloat(v.amount || 0) : 0,
+        credit: v.type === 'receipt' ? parseFloat(v.amount || 0) : 0,
+      }));
+
+      const all = [...salesEntries, ...purchaseEntries, ...voucherEntries].sort((a, b) => new Date(a.date) - new Date(b.date));
+      setEntries(all);
+    };
+    load();
   }, [id]);
 
   let runningBalance = account ? parseFloat(account.openingBalance || 0) : 0;

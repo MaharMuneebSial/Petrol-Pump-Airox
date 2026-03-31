@@ -12,11 +12,11 @@ export default function RateAdjustmentPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const load = () => {
-    setProducts(getProducts());
-    setAdjustments(getRateAdjustments());
+  const load = async () => {
+    setProducts(await getProducts());
+    setAdjustments(await getRateAdjustments());
   };
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const selectedProduct = products.find(p => p.id === form.productId);
 
@@ -28,13 +28,13 @@ export default function RateAdjustmentPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
 
-    addRateAdjustment({
+    await addRateAdjustment({
       productId: form.productId,
       oldRate: parseFloat(selectedProduct?.rate || 0),
       newRate: parseFloat(form.newRate),
@@ -42,13 +42,11 @@ export default function RateAdjustmentPage() {
       date: form.date,
     });
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(`Rate updated successfully for ${selectedProduct?.name}`);
-      setForm(p => ({ ...p, productId: '', newRate: '', reason: '' }));
-      load();
-      setTimeout(() => setSuccess(''), 3000);
-    }, 500);
+    setLoading(false);
+    setSuccess(`Rate updated successfully for ${selectedProduct?.name}`);
+    setForm(p => ({ ...p, productId: '', newRate: '', reason: '' }));
+    await load();
+    setTimeout(() => setSuccess(''), 3000);
   };
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
@@ -185,7 +183,7 @@ export default function RateAdjustmentPage() {
                 </tr>
               </thead>
               <tbody>
-                {[...adjustments].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((adj, i) => {
+                {[...adjustments].sort((a, b) => new Date(b.date) - new Date(a.date)).map((adj, i) => {
                   const change = parseFloat(adj.newRate || 0) - parseFloat(adj.oldRate || 0);
                   return (
                     <tr key={adj.id}>

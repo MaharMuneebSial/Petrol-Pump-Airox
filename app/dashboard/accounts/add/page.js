@@ -42,23 +42,21 @@ export default function AddAccountPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addAccount({
+    await addAccount({
       name: form.name.trim(),
       type: form.type,
       phone: form.phone.trim(),
       address: form.address.trim(),
       openingBalance: parseFloat(form.openingBalance || 0),
     });
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => router.push('/dashboard/accounts'), 1000);
-    }, 500);
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => router.push('/dashboard/accounts'), 1000);
   };
 
   const handleChange = (field) => (e) => {

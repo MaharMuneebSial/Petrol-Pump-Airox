@@ -47,22 +47,21 @@ export default function AddProductPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addProduct({
+    await addProduct({
       name: form.name.trim(),
       unit: form.unit.trim(),
       stock: parseFloat(form.stock || 0),
       rate: parseFloat(form.rate || 0),
       hsnCode: form.hsnCode.trim(),
     });
-    setTimeout(() => {
-      setLoading(false); setSuccess(true);
-      setTimeout(() => router.push('/dashboard/products/manage'), 1000);
-    }, 500);
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => router.push('/dashboard/products/manage'), 1000);
   };
 
   const handleChange = (field) => (e) => {

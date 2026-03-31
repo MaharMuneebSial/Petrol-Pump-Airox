@@ -18,7 +18,7 @@ export default function AddMachinePage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    setProducts(getProducts());
+    getProducts().then(setProducts);
   }, []);
 
   const validate = () => {
@@ -30,24 +30,22 @@ export default function AddMachinePage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
 
-    addMachine({
+    await addMachine({
       name: form.name.trim(),
       machineNo: form.machineNo.trim(),
       productId: form.productId,
       nozzleCount: parseInt(form.nozzleCount),
     });
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => router.push('/dashboard/products/machines/manage'), 1000);
-    }, 500);
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => router.push('/dashboard/products/machines/manage'), 1000);
   };
 
   const handleChange = (field) => (e) => {

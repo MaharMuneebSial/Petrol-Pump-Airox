@@ -57,8 +57,8 @@ export default function ManageProductsPage() {
   const [deleteId, setDeleteId] = useState(null);
   const [search, setSearch] = useState('');
 
-  const load = () => setProducts(getProducts());
-  useEffect(load, []);
+  const load = async () => setProducts(await getProducts());
+  useEffect(() => { load(); }, []);
 
   const filtered = products.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()));
   const totalStockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
@@ -68,16 +68,17 @@ export default function ManageProductsPage() {
     setEditForm({ name: product.name || '', unit: product.unit || 'Ltr', stock: product.stock ?? '', rate: product.rate ?? '', hsnCode: product.hsnCode || '' });
   };
 
-  const handleSave = (id) => {
-    updateProduct(id, {
+  const handleSave = async (id) => {
+    await updateProduct(id, {
       name: editForm.name, unit: editForm.unit,
       stock: parseFloat(editForm.stock || 0), rate: parseFloat(editForm.rate || 0),
       hsnCode: editForm.hsnCode,
     });
-    setEditId(null); load();
+    setEditId(null);
+    await load();
   };
 
-  const handleDelete = (id) => { deleteProduct(id); load(); setDeleteId(null); };
+  const handleDelete = async (id) => { await deleteProduct(id); await load(); setDeleteId(null); };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>

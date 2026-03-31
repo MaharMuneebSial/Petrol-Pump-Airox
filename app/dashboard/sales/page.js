@@ -43,8 +43,11 @@ export default function SalesPage() {
   const [filterMode, setFilterMode] = useState('');
   const [deleteId, setDeleteId] = useState(null);
 
-  const load = () => { setSales(getSales()); setProducts(getProducts()); setAccounts(getAccounts()); };
-  useEffect(load, []);
+  const load = async () => {
+    const [s, p, a] = await Promise.all([getSales(), getProducts(), getAccounts()]);
+    setSales(s); setProducts(p); setAccounts(a);
+  };
+  useEffect(() => { load(); }, []);
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
   const getCustomerName = (id) => id ? (accounts.find(a => a.id === id)?.name || 'Unknown') : 'Cash Customer';
@@ -53,9 +56,9 @@ export default function SalesPage() {
     const prod = getProductName(s.productId);
     const cust = getCustomerName(s.customerId);
     const matchSearch = prod.toLowerCase().includes(search.toLowerCase()) || cust.toLowerCase().includes(search.toLowerCase());
-    const date = s.date || s.createdAt?.slice(0, 10) || '';
+    const date = s.date || '';
     return matchSearch && (!dateFrom || date >= dateFrom) && (!dateTo || date <= dateTo) && (!filterMode || s.paymentMode === filterMode);
-  }).sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const totalAmt = filtered.reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const totalQty = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
@@ -64,7 +67,7 @@ export default function SalesPage() {
 
   const modeColors = { cash: 'badge-success', credit: 'badge-danger', card: 'badge-info', online: 'badge-warning' };
 
-  const handleDelete = (id) => { deleteSale(id); load(); setDeleteId(null); };
+  const handleDelete = async (id) => { await deleteSale(id); await load(); setDeleteId(null); };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
@@ -140,7 +143,7 @@ export default function SalesPage() {
                 filtered.map((s, i) => (
                   <tr key={s.id}>
                     <td style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>{i + 1}</td>
-                    <td style={{ color: '#475569', fontSize: '13px' }}>{s.date || s.createdAt?.slice(0, 10)}</td>
+                    <td style={{ color: '#475569', fontSize: '13px' }}>{s.date}</td>
                     <td style={{ color: '#374151', fontSize: '13px', fontWeight: 500 }}>{getCustomerName(s.customerId)}</td>
                     <td style={{ fontWeight: 600, color: '#0f1f5c', fontSize: '13px' }}>{getProductName(s.productId)}</td>
                     <td style={{ textAlign: 'right', fontWeight: 700, color: '#7c3aed', fontSize: '13px' }}>{fmt(s.quantity)}</td>

@@ -52,12 +52,15 @@ function VouchersContent() {
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  const load = () => { setVouchers(getVouchers()); setAccounts(getAccounts()); };
-  useEffect(load, []);
+  const load = async () => {
+    const [v, a] = await Promise.all([getVouchers(), getAccounts()]);
+    setVouchers(v); setAccounts(a);
+  };
+  useEffect(() => { load(); }, []);
   useEffect(() => setActiveType(typeParam), [typeParam]);
 
   const filtered = vouchers.filter(v => v.type === activeType)
-    .sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const totalAmt = filtered.reduce((s, v) => s + parseFloat(v.amount || 0), 0);
   const getAccountName = (id) => accounts.find(a => a.id === id)?.name || 'Unknown';
@@ -70,21 +73,19 @@ function VouchersContent() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addVoucher({ type: activeType, accountId: form.accountId, amount: parseFloat(form.amount), date: form.date, description: form.description.trim() });
-    setTimeout(() => {
-      setLoading(false);
-      setShowForm(false);
-      setForm({ accountId: '', amount: '', date: new Date().toISOString().slice(0, 10), description: '' });
-      load();
-    }, 400);
+    await addVoucher({ type: activeType, accountId: form.accountId, amount: parseFloat(form.amount), date: form.date, description: form.description.trim() });
+    setLoading(false);
+    setShowForm(false);
+    setForm({ accountId: '', amount: '', date: new Date().toISOString().slice(0, 10), description: '' });
+    await load();
   };
 
-  const handleDelete = (id) => { deleteVoucher(id); load(); setDeleteId(null); };
+  const handleDelete = async (id) => { await deleteVoucher(id); await load(); setDeleteId(null); };
 
   const isReceipt = activeType === 'receipt';
   const accentColor = isReceipt ? '#10b981' : '#ef4444';
@@ -230,7 +231,7 @@ function VouchersContent() {
                 filtered.map((v, i) => (
                   <tr key={v.id}>
                     <td style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>{i + 1}</td>
-                    <td style={{ color: '#475569', fontSize: '13px' }}>{v.date || v.createdAt?.slice(0, 10)}</td>
+                    <td style={{ color: '#475569', fontSize: '13px' }}>{v.date}</td>
                     <td style={{ fontWeight: 600, color: '#0f1f5c', fontSize: '13px' }}>{getAccountName(v.accountId)}</td>
                     <td style={{ color: '#475569', fontSize: '13px' }}>{v.description || '—'}</td>
                     <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '13px', color: accentColor }}>

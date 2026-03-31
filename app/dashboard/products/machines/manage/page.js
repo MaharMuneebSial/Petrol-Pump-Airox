@@ -8,17 +8,17 @@ export default function ManageMachinesPage() {
   const [products, setProducts] = useState([]);
   const [deleteId, setDeleteId] = useState(null);
 
-  const load = () => {
-    setMachines(getMachines());
-    setProducts(getProducts());
+  const load = async () => {
+    setMachines(await getMachines());
+    setProducts(await getProducts());
   };
-  useEffect(load, []);
+  useEffect(() => { load(); }, []);
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
 
-  const handleDelete = (id) => {
-    deleteMachine(id);
-    load();
+  const handleDelete = async (id) => {
+    await deleteMachine(id);
+    await load();
     setDeleteId(null);
   };
 

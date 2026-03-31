@@ -8,14 +8,15 @@ export default function InvestmentSummaryPage() {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    const products = getProducts();
-    const purchases = getPurchases();
-    const accounts = getAccounts();
-    const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
-    const totalPurchased = purchases.reduce((s, p) => s + parseFloat(p.total || 0), 0);
-    const totalReceivable = accounts.filter(a => parseFloat(a.currentBalance || 0) > 0).reduce((s, a) => s + parseFloat(a.currentBalance || 0), 0);
-    const totalInvestment = stockValue + totalReceivable;
-    setData({ stockValue, totalPurchased, totalReceivable, totalInvestment, products });
+    const load = async () => {
+      const [products, purchases, accounts] = await Promise.all([getProducts(), getPurchases(), getAccounts()]);
+      const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
+      const totalPurchased = purchases.reduce((s, p) => s + parseFloat(p.total || 0), 0);
+      const totalReceivable = accounts.filter(a => parseFloat(a.currentBalance || 0) > 0).reduce((s, a) => s + parseFloat(a.currentBalance || 0), 0);
+      const totalInvestment = stockValue + totalReceivable;
+      setData({ stockValue, totalPurchased, totalReceivable, totalInvestment, products });
+    };
+    load();
   }, []);
 
   if (!data) return <div className="py-20 text-center" style={{ color: '#94a3b8' }}>Loading...</div>;

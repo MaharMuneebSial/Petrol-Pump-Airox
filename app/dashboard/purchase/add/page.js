@@ -34,8 +34,13 @@ export default function AddPurchasePage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    setProducts(getProducts());
-    setSuppliers(getAccounts().filter(a => a.type === 'Supplier'));
+    const load = async () => {
+      const prods = await getProducts();
+      const accs = await getAccounts();
+      setProducts(prods);
+      setSuppliers(accs.filter(a => a.type === 'Supplier'));
+    };
+    load();
   }, []);
 
   const handleChange = (field) => (e) => {
@@ -48,7 +53,8 @@ export default function AddPurchasePage() {
         updated.total = (qty * rate).toFixed(2);
       }
       if (field === 'productId') {
-        const prod = getProducts().find(p => p.id === val);
+        // Use products already loaded in state
+        const prod = products.find(pr => pr.id === val);
         if (prod) updated.rate = prod.rate?.toString() || '';
         const qty = parseFloat(p.quantity) || 0;
         updated.total = (qty * parseFloat(prod?.rate || 0)).toFixed(2);
@@ -67,12 +73,12 @@ export default function AddPurchasePage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addPurchase({
+    await addPurchase({
       productId: form.productId,
       quantity: parseFloat(form.quantity),
       rate: parseFloat(form.rate),
@@ -81,10 +87,9 @@ export default function AddPurchasePage() {
       date: form.date,
       note: form.note.trim(),
     });
-    setTimeout(() => {
-      setLoading(false); setSuccess(true);
-      setTimeout(() => router.push('/dashboard/purchase'), 1000);
-    }, 500);
+    setLoading(false);
+    setSuccess(true);
+    setTimeout(() => router.push('/dashboard/purchase'), 1000);
   };
 
   return (

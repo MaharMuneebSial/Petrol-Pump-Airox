@@ -8,30 +8,31 @@ export default function ProfitOnSalesPage() {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    const sales = getSales();
-    const purchases = getPurchases();
-    const products = getProducts();
-    const profitMap = {};
+    const load = async () => {
+      const [sales, purchases, products] = await Promise.all([getSales(), getPurchases(), getProducts()]);
+      const profitMap = {};
 
-    sales.forEach(s => {
-      const p = products.find(pr => pr.id === s.productId);
-      if (!p) return;
-      const purchasesForProduct = purchases.filter(pu => pu.productId === s.productId);
-      const avgCostPerLtr = purchasesForProduct.length > 0
-        ? purchasesForProduct.reduce((sum, pu) => sum + parseFloat(pu.rate || 0), 0) / purchasesForProduct.length
-        : parseFloat(p.rate || 0) * 0.85;
-      const profit = (parseFloat(s.rate || 0) - avgCostPerLtr) * parseFloat(s.quantity || 0);
-      if (!profitMap[p.name]) profitMap[p.name] = { revenue: 0, cost: 0, profit: 0, qty: 0 };
-      profitMap[p.name].revenue += parseFloat(s.total || 0);
-      profitMap[p.name].cost += avgCostPerLtr * parseFloat(s.quantity || 0);
-      profitMap[p.name].profit += profit;
-      profitMap[p.name].qty += parseFloat(s.quantity || 0);
-    });
+      sales.forEach(s => {
+        const p = products.find(pr => pr.id === s.productId);
+        if (!p) return;
+        const purchasesForProduct = purchases.filter(pu => pu.productId === s.productId);
+        const avgCostPerLtr = purchasesForProduct.length > 0
+          ? purchasesForProduct.reduce((sum, pu) => sum + parseFloat(pu.rate || 0), 0) / purchasesForProduct.length
+          : parseFloat(p.rate || 0) * 0.85;
+        const profit = (parseFloat(s.rate || 0) - avgCostPerLtr) * parseFloat(s.quantity || 0);
+        if (!profitMap[p.name]) profitMap[p.name] = { revenue: 0, cost: 0, profit: 0, qty: 0 };
+        profitMap[p.name].revenue += parseFloat(s.total || 0);
+        profitMap[p.name].cost += avgCostPerLtr * parseFloat(s.quantity || 0);
+        profitMap[p.name].profit += profit;
+        profitMap[p.name].qty += parseFloat(s.quantity || 0);
+      });
 
-    setRows(Object.entries(profitMap).map(([name, d]) => ({
-      name, ...d,
-      margin: d.revenue > 0 ? (d.profit / d.revenue * 100) : 0,
-    })));
+      setRows(Object.entries(profitMap).map(([name, d]) => ({
+        name, ...d,
+        margin: d.revenue > 0 ? (d.profit / d.revenue * 100) : 0,
+      })));
+    };
+    load();
   }, []);
 
   const totalRevenue = rows.reduce((s, r) => s + r.revenue, 0);

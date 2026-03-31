@@ -44,8 +44,8 @@ export default function AccountsPage() {
   const [filterType, setFilterType] = useState('');
   const [deleteId, setDeleteId] = useState(null);
 
-  const load = () => setAccounts(getAccounts());
-  useEffect(load, []);
+  const load = async () => setAccounts(await getAccounts());
+  useEffect(() => { load(); }, []);
 
   const filtered = accounts.filter(a => {
     const matchSearch = a.name?.toLowerCase().includes(search.toLowerCase()) || a.phone?.includes(search);
@@ -53,9 +53,9 @@ export default function AccountsPage() {
     return matchSearch && matchType;
   });
 
-  const handleDelete = (id) => {
-    deleteAccount(id);
-    load();
+  const handleDelete = async (id) => {
+    await deleteAccount(id);
+    await load();
     setDeleteId(null);
   };
 
