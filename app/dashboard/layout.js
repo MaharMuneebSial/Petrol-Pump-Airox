@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }) {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header onToggleSidebar={() => setSidebarCollapsed(p => !p)} />
         <main className="flex-1 overflow-y-auto" style={{ background: '#f1f5f9' }}>
-          <div style={{ padding: '10px 12px' }}>
+          <div style={{ padding: '18px 24px' }}>
             {children}
           </div>
         </main>
