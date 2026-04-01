@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { getProducts, getRateAdjustments, addRateAdjustment } from '../../../../lib/store';
+import { getProducts, getRateAdjustments, addRateAdjustment, updateRateAdjustment } from '../../../../lib/store';
 
 const fmt     = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
 const fmtDate = (d) => { try { return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return d; } };
@@ -15,6 +15,123 @@ const IconAlert   = () => <svg width={12} height={12} fill="none" stroke="curren
 const IconHistory = () => <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>;
 const IconDroplet = () => <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>;
 const IconCalendar= () => <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IconEye     = () => <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const IconEdit2   = () => <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+const IconX       = () => <svg width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>;
+
+// ── Action Button ──────────────────────────────────────────────────────────────
+function ActionBtn({ onClick, icon, bg, color, border, title }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button onClick={onClick} title={title}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ width: '28px', height: '28px', borderRadius: '7px', border: `1.5px solid ${border}`, background: hov ? bg : '#fff', color, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s', flexShrink: 0 }}>
+      {icon}
+    </button>
+  );
+}
+
+// ── View Modal ─────────────────────────────────────────────────────────────────
+function ViewAdjModal({ adj, productName, onClose }) {
+  const change = adj.newRate - adj.oldRate;
+  const isUp   = change >= 0;
+  const fmt2   = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
+  const fmtD   = (d) => { try { return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }); } catch { return d; } };
+  const Row = ({ label, children }) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+      <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: '#0D1B3E' }}>{children}</span>
+    </div>
+  );
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(10,18,40,0.6)', backdropFilter: 'blur(5px)' }}>
+      <div style={{ width: '100%', maxWidth: '440px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.25)', background: '#fff' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg,#0D1B3E,#1a3475)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Rate Adjustment</p>
+            <p style={{ margin: '3px 0 0', fontSize: '18px', fontWeight: 800, color: '#fff' }}>{productName}</p>
+            <p style={{ margin: '3px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.55)' }}>{fmtD(adj.date)}</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>New Rate</p>
+            <p style={{ margin: '3px 0 0', fontSize: '22px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace' }}>Rs. {fmt2(adj.newRate)}</p>
+            <button onClick={onClose} style={{ marginTop: '6px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '7px', color: '#fff', cursor: 'pointer', padding: '4px 8px', fontSize: '11px', fontFamily: 'inherit', fontWeight: 600 }}>Close</button>
+          </div>
+        </div>
+        {/* Body */}
+        <div style={{ padding: '14px 20px' }}>
+          <Row label="Product">{productName}</Row>
+          <Row label="Effective Date">{fmtD(adj.date)}</Row>
+          <Row label="Previous Rate"><span style={{ color: '#64748b' }}>Rs. {fmt2(adj.oldRate)}</span></Row>
+          <Row label="New Rate"><span style={{ color: '#059669', fontFamily: 'monospace' }}>Rs. {fmt2(adj.newRate)}</span></Row>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+            <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 500 }}>Change</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '3px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 700, background: isUp ? '#f0fdf4' : '#fef2f2', color: isUp ? '#15803d' : '#b91c1c', border: `1px solid ${isUp ? '#bbf7d0' : '#fecaca'}` }}>
+              {isUp ? <IconTrendUp /> : <IconTrendDn />} {isUp ? '+' : ''}{fmt2(change)}
+            </span>
+          </div>
+          {adj.reason ? (
+            <div style={{ marginTop: '10px', background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: '8px', padding: '9px 12px' }}>
+              <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '3px' }}>Reason</p>
+              <p style={{ margin: 0, fontSize: '12.5px', color: '#78350f' }}>{adj.reason}</p>
+            </div>
+          ) : (
+            <p style={{ margin: '10px 0 0', fontSize: '11.5px', color: '#94a3b8', fontStyle: 'italic' }}>No reason provided</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Modal ─────────────────────────────────────────────────────────────────
+function EditAdjModal({ adj, productName, onSave, onClose }) {
+  const [form, setForm] = useState({ date: adj.date || '', reason: adj.reason || '' });
+  const [saving, setSaving] = useState(false);
+  const fmt2 = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
+  const lbl  = { display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.03em' };
+  const inp  = { width: '100%', boxSizing: 'border-box', padding: '8px 11px', fontSize: '13px', fontFamily: 'inherit', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: '#fff', color: '#0D1B3E', outline: 'none' };
+  const handleSave = async () => { setSaving(true); await onSave(adj.id, { date: form.date, reason: form.reason }); setSaving(false); };
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(10,18,40,0.6)', backdropFilter: 'blur(5px)' }}>
+      <div style={{ width: '100%', maxWidth: '460px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.25)', background: '#fff' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg,#0D1B3E,#1a3475)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Edit Adjustment</p>
+            <p style={{ margin: '3px 0 0', fontSize: '15px', fontWeight: 800, color: '#fff' }}>{productName}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '7px', color: '#fff', cursor: 'pointer', padding: '5px', display: 'flex' }}><IconX /></button>
+        </div>
+        {/* Rate info bar */}
+        <div style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9', padding: '10px 20px', display: 'flex', gap: '24px' }}>
+          <div><p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Old Rate</p><p style={{ margin: '2px 0 0', fontSize: '13px', fontWeight: 700, color: '#64748b' }}>Rs. {fmt2(adj.oldRate)}</p></div>
+          <div><p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>New Rate</p><p style={{ margin: '2px 0 0', fontSize: '13px', fontWeight: 700, color: '#059669' }}>Rs. {fmt2(adj.newRate)}</p></div>
+          <div style={{ marginLeft: 'auto', textAlign: 'right' }}><p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Note</p><p style={{ margin: '2px 0 0', fontSize: '10.5px', color: '#94a3b8' }}>Rates are read-only</p></div>
+        </div>
+        {/* Body */}
+        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
+            <label style={lbl}>Effective Date</label>
+            <input type="date" style={inp} value={form.date} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} />
+          </div>
+          <div>
+            <label style={lbl}>Reason <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 400 }}>(optional)</span></label>
+            <input style={inp} placeholder="e.g. PSO price revision, Govt. notification…" value={form.reason} onChange={e => setForm(p => ({ ...p, reason: e.target.value }))} />
+          </div>
+        </div>
+        {/* Footer */}
+        <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#f8fafc', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <button onClick={handleSave} disabled={saving} style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, background: '#0D1B3E', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.75 : 1, fontFamily: 'inherit' }}>
+            {saving ? <><span className="spinner" /> Saving…</> : <><IconSave /> Save Changes</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const UNIT_STYLE = {
   'Ltr':         { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
@@ -33,6 +150,8 @@ export default function RateAdjustmentPage() {
   const [errors, setErrors]   = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [viewAdj, setViewAdj] = useState(null);
+  const [editAdj, setEditAdj] = useState(null);
 
   // Product combobox
   const [productSearch, setProductSearch]     = useState('');
@@ -86,6 +205,12 @@ export default function RateAdjustmentPage() {
     setTimeout(() => setSuccess(''), 3500);
   };
 
+  const handleSaveEdit = async (id, updates) => {
+    await updateRateAdjustment(id, updates);
+    await load();
+    setEditAdj(null);
+  };
+
   const getProductName = (id) => products.find(p => String(p.id) === String(id))?.name || 'Unknown';
 
   const sortedAdj = [...adjustments].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -95,21 +220,12 @@ export default function RateAdjustmentPage() {
 
       {/* ── Page Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{
-          width: '34px', height: '34px', borderRadius: '9px',
-          background: 'linear-gradient(135deg, #0D1B3E, #1a2f72)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: 'white', flexShrink: 0, boxShadow: '0 3px 10px rgba(13,27,62,0.22)',
-        }}>
+        <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg,#0D1B3E,#1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
           <IconRate />
         </div>
         <div>
-          <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#0D1B3E', margin: 0, letterSpacing: '-0.02em' }}>
-            Rate Adjustment
-          </h1>
-          <p style={{ fontSize: '11px', color: '#94A3B8', margin: '1px 0 0', fontWeight: 400 }}>
-            Update product selling rates
-          </p>
+          <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0D1B3E', letterSpacing: '-0.025em', lineHeight: 1.2 }}>Rate Adjustment</h1>
+          <p style={{ margin: 0, fontSize: '11.5px', color: '#94a3b8', marginTop: '1px' }}>Update product selling rates</p>
         </div>
       </div>
 
@@ -157,7 +273,7 @@ export default function RateAdjustmentPage() {
                   }}
                   style={{
                     display: 'flex', alignItems: 'center', width: '100%',
-                    padding: '11px 16px', gap: '10px',
+                    padding: '8px 14px', gap: '8px',
                     background: isSelected ? '#EEF2FF' : 'transparent',
                     border: 'none', borderBottom: '1px solid #F8FAFC',
                     cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
@@ -207,7 +323,7 @@ export default function RateAdjustmentPage() {
           </div>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
               {/* Product — searchable combobox */}
               <div>
@@ -230,15 +346,15 @@ export default function RateAdjustmentPage() {
                     <polyline points="6 9 12 15 18 9"/>
                   </svg>
                   {showProductDrop && (
-                    <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '9px', boxShadow: '0 10px 28px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', maxHeight: '200px', overflowY: 'auto' }}>
+                    <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0, background: 'white', border: '1.5px solid #E2E8F0', borderRadius: '9px', boxShadow: '0 10px 28px rgba(0,0,0,0.1)', zIndex: 50, overflow: 'hidden', maxHeight: '180px', overflowY: 'auto' }}>
                       {filteredProducts.length === 0
-                        ? <div style={{ padding: '12px 14px', fontSize: '12px', color: '#94A3B8' }}>No match</div>
+                        ? <div style={{ padding: '10px 14px', fontSize: '12px', color: '#94A3B8' }}>No match</div>
                         : filteredProducts.map(p => {
                           const isSel = String(form.productId) === String(p.id);
                           return (
                             <button key={p.id} type="button"
                               onMouseDown={() => { setForm(prev => ({ ...prev, productId: String(p.id), newRate: '' })); setErrors(prev => ({ ...prev, productId: '' })); setShowProductDrop(false); setProductSearch(''); }}
-                              style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '9px 14px', background: isSel ? '#F0FDF4' : 'transparent', border: 'none', borderBottom: '1px solid #F8FAFC', cursor: 'pointer', fontFamily: 'inherit' }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '8px 14px', background: isSel ? '#F0FDF4' : 'transparent', border: 'none', borderBottom: '1px solid #F8FAFC', cursor: 'pointer', fontFamily: 'inherit' }}
                               onMouseEnter={e => { if (!isSel) e.currentTarget.style.background = '#F8FAFC'; }}
                               onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent'; }}
                             >
@@ -253,78 +369,68 @@ export default function RateAdjustmentPage() {
                     </div>
                   )}
                 </div>
-                {errors.productId && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '4px' }}><IconAlert /> {errors.productId}</p>}
+                {errors.productId && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '3px' }}><IconAlert /> {errors.productId}</p>}
               </div>
 
               {/* Current rate pill — only when product selected */}
               {selectedProduct && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderRadius: '9px', background: '#EEF2FF', border: '1px solid #C7D2FE' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#4338CA' }}>Current Rate</span>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: '#0D1B3E' }}>Rs. {fmt(selectedProduct.rate)}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderRadius: '8px', background: '#EEF2FF', border: '1px solid #C7D2FE' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#4338CA' }}>Current Rate</span>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#0D1B3E' }}>Rs. {fmt(selectedProduct.rate)}</span>
                 </div>
               )}
 
-              {/* New Rate */}
-              <div>
-                <label className="ps-label">New Rate (Rs.) <span style={{ color: '#DC2626' }}>*</span></label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#CBD5E1', fontWeight: 700, pointerEvents: 'none' }}>Rs.</span>
-                  <input
-                    className="ps-input"
-                    placeholder="0.00"
-                    value={form.newRate}
-                    onChange={e => { setForm(p => ({ ...p, newRate: e.target.value })); setErrors(p => ({ ...p, newRate: '' })); }}
-                    inputMode="decimal"
-                    style={{ paddingLeft: '34px', borderColor: errors.newRate ? '#FCA5A5' : undefined, background: errors.newRate ? '#FFF5F5' : undefined }}
-                  />
-                </div>
-                {errors.newRate && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '4px' }}><IconAlert /> {errors.newRate}</p>}
-
-                {/* Rate change indicator */}
-                {selectedProduct && hasChange && (
-                  <div style={{
-                    marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '8px',
-                    padding: '7px 12px', borderRadius: '8px',
-                    background: isIncrease ? '#F0FDF4' : '#FEF2F2',
-                    border: `1px solid ${isIncrease ? '#BBF7D0' : '#FECACA'}`,
-                  }}>
-                    <span style={{ display: 'flex', alignItems: 'center', color: isIncrease ? '#059669' : '#DC2626' }}>
-                      {isIncrease ? <IconTrendUp /> : <IconTrendDn />}
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: isIncrease ? '#15803D' : '#B91C1C' }}>
-                      {isIncrease ? 'Increase' : 'Decrease'} of Rs. {fmt(Math.abs(rateChange))}
-                    </span>
-                    <span style={{ fontSize: '10px', color: '#94A3B8' }}>
-                      {fmt(oldRate)} → {fmt(newRate)}
-                    </span>
+              {/* New Rate + Date in one row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div>
+                  <label className="ps-label">New Rate (Rs.) <span style={{ color: '#DC2626' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', color: '#CBD5E1', fontWeight: 700, pointerEvents: 'none' }}>Rs.</span>
+                    <input
+                      className="ps-input"
+                      placeholder="0.00"
+                      value={form.newRate}
+                      onChange={e => { setForm(p => ({ ...p, newRate: e.target.value })); setErrors(p => ({ ...p, newRate: '' })); }}
+                      inputMode="decimal"
+                      style={{ paddingLeft: '34px', borderColor: errors.newRate ? '#FCA5A5' : undefined, background: errors.newRate ? '#FFF5F5' : undefined }}
+                    />
                   </div>
-                )}
+                  {errors.newRate && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '3px' }}><IconAlert /> {errors.newRate}</p>}
+                </div>
+                <div>
+                  <label className="ps-label">Effective Date <span style={{ color: '#DC2626' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#CBD5E1', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
+                      <IconCalendar />
+                    </span>
+                    <input
+                      type="date"
+                      className="ps-input"
+                      value={form.date}
+                      onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
+                      style={{ paddingLeft: '30px', borderColor: errors.date ? '#FCA5A5' : undefined, background: errors.date ? '#FFF5F5' : undefined }}
+                    />
+                  </div>
+                  {errors.date && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '3px' }}><IconAlert /> {errors.date}</p>}
+                </div>
               </div>
 
-              {/* Date */}
-              <div>
-                <label className="ps-label">Effective Date <span style={{ color: '#DC2626' }}>*</span></label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#CBD5E1', display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
-                    <IconCalendar />
+              {/* Rate change indicator */}
+              {selectedProduct && hasChange && (
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 10px', borderRadius: '7px', background: isIncrease ? '#F0FDF4' : '#FEF2F2', border: `1px solid ${isIncrease ? '#BBF7D0' : '#FECACA'}` }}>
+                  <span style={{ display: 'flex', alignItems: 'center', color: isIncrease ? '#059669' : '#DC2626' }}>
+                    {isIncrease ? <IconTrendUp /> : <IconTrendDn />}
                   </span>
-                  <input
-                    type="date"
-                    className="ps-input"
-                    value={form.date}
-                    onChange={e => setForm(p => ({ ...p, date: e.target.value }))}
-                    style={{ paddingLeft: '30px', borderColor: errors.date ? '#FCA5A5' : undefined, background: errors.date ? '#FFF5F5' : undefined }}
-                  />
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: isIncrease ? '#15803D' : '#B91C1C' }}>
+                    {isIncrease ? 'Increase' : 'Decrease'} of Rs. {fmt(Math.abs(rateChange))}
+                  </span>
+                  <span style={{ fontSize: '10px', color: '#94A3B8' }}>{fmt(oldRate)} → {fmt(newRate)}</span>
                 </div>
-                {errors.date && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '4px' }}><IconAlert /> {errors.date}</p>}
-              </div>
+              )}
 
               {/* Reason */}
               <div>
-                <label className="ps-label">
-                  Reason
-                  <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 400, marginLeft: '4px' }}>(optional)</span>
-                </label>
+                <label className="ps-label">Reason <span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 400 }}>(optional)</span></label>
                 <input
                   className="ps-input"
                   placeholder="e.g. PSO price revision, Govt. notification…"
@@ -383,6 +489,7 @@ export default function RateAdjustmentPage() {
                   <th style={{ textAlign: 'right' }}>New Rate</th>
                   <th style={{ textAlign: 'center' }}>Change</th>
                   <th>Reason</th>
+                  <th style={{ textAlign: 'center', width: '76px' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -391,9 +498,7 @@ export default function RateAdjustmentPage() {
                   const isUp       = change >= 0;
                   return (
                     <tr key={adj.id}>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '20px', height: '20px', borderRadius: '5px', background: '#F8FAFC', fontSize: '10px', fontWeight: 700, color: '#CBD5E1', border: '1px solid #F1F5F9' }}>{i + 1}</span>
-                      </td>
+                      <td style={{ color: '#94a3b8', fontSize: '11.5px', fontWeight: 700 }}>{i + 1}</td>
                       <td>
                         <span style={{ fontSize: '12px', fontWeight: 600, color: '#475569' }}>{fmtDate(adj.date)}</span>
                       </td>
@@ -425,6 +530,12 @@ export default function RateAdjustmentPage() {
                       <td style={{ fontSize: '12px', color: adj.reason ? '#475569' : '#CBD5E1', fontStyle: adj.reason ? 'normal' : 'italic' }}>
                         {adj.reason || 'No reason given'}
                       </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                          <ActionBtn onClick={() => setViewAdj(adj)} icon={<IconEye />} bg="#f0fdf4" color="#059669" border="#bbf7d0" title="View details" />
+                          <ActionBtn onClick={() => setEditAdj(adj)} icon={<IconEdit2 />} bg="#eff6ff" color="#2563eb" border="#93c5fd" title="Edit adjustment" />
+                        </div>
+                      </td>
                     </tr>
                   );
                 })}
@@ -432,6 +543,22 @@ export default function RateAdjustmentPage() {
             </table>
           </div>
         </div>
+      )}
+
+      {viewAdj && (
+        <ViewAdjModal
+          adj={viewAdj}
+          productName={getProductName(viewAdj.productId)}
+          onClose={() => setViewAdj(null)}
+        />
+      )}
+      {editAdj && (
+        <EditAdjModal
+          adj={editAdj}
+          productName={getProductName(editAdj.productId)}
+          onSave={handleSaveEdit}
+          onClose={() => setEditAdj(null)}
+        />
       )}
     </div>
   );
