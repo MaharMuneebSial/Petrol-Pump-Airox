@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getPurchases, getProducts, getAccounts, deletePurchase } from '../../../lib/store';
+import ExportToolbar from '../../../components/ExportToolbar';
 
 const fmt     = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).format(n || 0);
 const fmtQty  = (n) => { const v = parseFloat(n || 0); return v % 1 === 0 ? v.toLocaleString('en-PK') : fmt(v); };
@@ -29,20 +30,8 @@ const IconSearch   = () => <svg width="13" height="13" fill="none" stroke="curre
 const IconCart     = () => <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>;
 const IconTrash    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
 const IconWarning  = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
-const IconDownload = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-const IconFilter   = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+const IconFilter = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
 
-const exportCSV = (rows, products, accounts) => {
-  const name = (id) => products.find(p => p.id === id)?.name || 'Unknown';
-  const supp = (id) => accounts.find(a => a.id === id)?.name || 'Cash';
-  const headers = ['Date','Product','Qty','Rate','Total','Supplier','Payment','Invoice','Note'];
-  const data = rows.map(r => [r.date, name(r.productId), r.quantity, r.rate, r.total, supp(r.supplierId), r.paymentMode||'cash', r.invoiceNo||'', r.note||'']);
-  const csv = [headers, ...data].map(r => r.join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = `purchases-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-};
 
 export default function PurchasePage() {
   const [purchases,     setPurchases]     = useState([]);
@@ -117,10 +106,44 @@ export default function PurchasePage() {
             <p className="ps-page-subtitle" style={{ margin: 0 }}>All fuel and product purchases</p>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button onClick={() => exportCSV(filtered, products, accounts)} className="btn-ghost btn-sm">
-            <IconDownload /> Export CSV
-          </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <ExportToolbar
+            title="Purchase List"
+            subtitle={[
+              dateFrom || dateTo ? `Date: ${dateFrom || '—'} → ${dateTo || '—'}` : '',
+              productFilter ? `Product: ${getProductName(productFilter)}` : '',
+              paymentFilter ? `Payment: ${paymentFilter.charAt(0).toUpperCase() + paymentFilter.slice(1)}` : '',
+              search ? `Search: "${search}"` : '',
+            ].filter(Boolean).join('  |  ') || 'All Records'}
+            filename="purchases"
+            columns={[
+              { label: 'Date',        key: 'date' },
+              { label: 'Product',     key: 'product' },
+              { label: 'Qty',         key: 'qty',     align: 'right' },
+              { label: 'Rate (Rs.)',  key: 'rate',    align: 'right' },
+              { label: 'Total (Rs.)', key: 'total',   align: 'right' },
+              { label: 'Supplier',    key: 'supplier' },
+              { label: 'Payment',     key: 'payment' },
+              { label: 'Invoice',     key: 'invoice' },
+              { label: 'Note',        key: 'note' },
+            ]}
+            data={filtered.map(p => ({
+              date:     fmtDate(p.date),
+              product:  getProductName(p.productId),
+              qty:      `${fmtQty(p.quantity)} ${getProductUnit(p.productId)}`,
+              rate:     `Rs. ${fmt(p.rate)}`,
+              total:    `Rs. ${fmt(p.total)}`,
+              supplier: getSupplierName(p.supplierId) || '—',
+              payment:  (p.paymentMode || 'cash').charAt(0).toUpperCase() + (p.paymentMode || 'cash').slice(1),
+              invoice:  p.invoiceNo || '—',
+              note:     p.note || '—',
+            }))}
+            summary={[
+              { label: 'Records',      value: filtered.length },
+              { label: 'Total Amount', value: `Rs. ${fmt(totalAmt)}` },
+              ...Object.values(qtyByProduct).map(q => ({ label: q.name, value: `${fmtQty(q.qty)} ${q.unit}` })),
+            ]}
+          />
           <Link href="/dashboard/purchase/add" className="btn-primary">
             <IconPlus /> Add Purchase
           </Link>

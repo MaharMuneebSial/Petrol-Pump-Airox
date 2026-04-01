@@ -67,18 +67,18 @@ export default function AccountsPage() {
   };
 
   const stats = [
-    { label: 'Total',     value: accounts.length,                                    color: '#0f1f5c', bg: 'linear-gradient(135deg, #eff6ff, #dbeafe)' },
-    { label: 'Customers', value: accounts.filter(a => a.type === 'Customer').length, color: '#1d4ed8', bg: 'linear-gradient(135deg, #dbeafe, #bfdbfe)' },
-    { label: 'Suppliers', value: accounts.filter(a => a.type === 'Supplier').length, color: '#a16207', bg: 'linear-gradient(135deg, #fef9c3, #fef3c7)' },
-    { label: 'Employees', value: accounts.filter(a => a.type === 'Employee').length, color: '#15803d', bg: 'linear-gradient(135deg, #dcfce7, #bbf7d0)' },
+    { label: 'Total Accounts', value: accounts.length,                                    accent: '#0D1B3E', iconBg: '#EEF2F7' },
+    { label: 'Customers',      value: accounts.filter(a => a.type === 'Customer').length, accent: '#2563EB', iconBg: '#EFF6FF' },
+    { label: 'Suppliers',      value: accounts.filter(a => a.type === 'Supplier').length, accent: '#D97706', iconBg: '#FFFBEB' },
+    { label: 'Employees',      value: accounts.filter(a => a.type === 'Employee').length, accent: '#059669', iconBg: '#F0FDF4' },
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Header */}
-      <div className="ps-page-header">
+      <div className="ps-page-header" style={{ marginBottom: 0 }}>
         <div>
-          <h1 className="ps-page-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h1 className="ps-page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <IconUsers /> Accounts
           </h1>
           <p className="ps-page-subtitle">Manage customers, suppliers and employees</p>
@@ -88,16 +88,18 @@ export default function AccountsPage() {
         </Link>
       </div>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }} className="md:grid-cols-4">
+      {/* Stats — compact single row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
         {stats.map(s => (
-          <div key={s.label} className="ps-card" style={{ padding: '16px 20px', background: s.bg, border: 'none' }}>
-            <p style={{ fontSize: '12px', fontWeight: 600, color: s.color, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px', opacity: 0.8 }}>
-              {s.label}
-            </p>
-            <p style={{ fontSize: '28px', fontWeight: 800, color: s.color, margin: 0, letterSpacing: '-0.02em' }}>
-              {s.value}
-            </p>
+          <div key={s.label} className="ps-card" style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '12px', borderLeft: `3px solid ${s.accent}` }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <p style={{ fontSize: '10.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 3px' }}>
+                {s.label}
+              </p>
+              <p style={{ fontSize: '22px', fontWeight: 800, color: s.accent, margin: 0, letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {s.value}
+              </p>
+            </div>
           </div>
         ))}
       </div>
