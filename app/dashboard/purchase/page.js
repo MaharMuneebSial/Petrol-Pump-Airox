@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getPurchases, getProducts, getAccounts, deletePurchase } from '../../../lib/store';
+import { getPurchases, getProducts, getAccounts, deletePurchase, updatePurchase } from '../../../lib/store';
 import ExportToolbar from '../../../components/ExportToolbar';
 
 const fmt     = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).format(n || 0);
@@ -31,6 +31,10 @@ const IconCart     = () => <svg width="17" height="17" fill="none" stroke="curre
 const IconTrash    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
 const IconWarning  = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
 const IconFilter = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+const IconEye    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const IconEdit   = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+const IconSave   = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
+const IconX      = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
 
 
 export default function PurchasePage() {
@@ -44,6 +48,10 @@ export default function PurchasePage() {
   const [paymentFilter, setPaymentFilter] = useState('');
   const [deleteId,      setDeleteId]      = useState(null);
   const [deletePurch,   setDeletePurch]   = useState(null);
+  const [viewPurch,     setViewPurch]     = useState(null);
+  const [editPurch,     setEditPurch]     = useState(null);
+  const [editForm,      setEditForm]      = useState({});
+  const [editLoading,   setEditLoading]   = useState(false);
   const [page,          setPage]          = useState(1);
   const [pageSize,      setPageSize]      = useState(15);
 
@@ -88,6 +96,43 @@ export default function PurchasePage() {
 
   const confirmDelete = (p) => { setDeleteId(p.id); setDeletePurch(p); };
   const handleDelete  = async () => { await deletePurchase(deleteId); await load(); setDeleteId(null); setDeletePurch(null); };
+
+  const openEdit = (p) => {
+    setEditPurch(p);
+    setEditForm({
+      date: p.date || '',
+      productId: p.productId || '',
+      quantity: p.quantity || '',
+      rate: p.rate || '',
+      total: p.total || '',
+      supplierId: p.supplierId || '',
+      paymentMode: p.paymentMode || 'cash',
+      invoiceNo: p.invoiceNo || '',
+      note: p.note || '',
+    });
+  };
+
+  const handleEditSave = async () => {
+    if (!editForm.productId || !editForm.quantity || !editForm.rate) return;
+    setEditLoading(true);
+    const qty   = parseFloat(editForm.quantity);
+    const rate  = parseFloat(editForm.rate);
+    const total = parseFloat(editForm.total) || qty * rate;
+    await updatePurchase(editPurch.id, {
+      date: editForm.date,
+      productId: editForm.productId,
+      quantity: qty,
+      rate,
+      total,
+      supplierId: editForm.supplierId || null,
+      paymentMode: editForm.paymentMode,
+      invoiceNo: editForm.invoiceNo || null,
+      note: editForm.note || null,
+    });
+    setEditLoading(false);
+    setEditPurch(null);
+    await load();
+  };
 
   /* ── shared td style ── */
   const td = { padding: '9px 14px', fontSize: '12.5px', borderBottom: '1px solid #f1f5f9', verticalAlign: 'middle' };
@@ -234,7 +279,7 @@ export default function PurchasePage() {
                 <th>Supplier</th>
                 <th>Payment</th>
                 <th>Invoice</th>
-                <th style={{ width: '40px' }}></th>
+                <th style={{ width: '90px', textAlign: 'center' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -283,17 +328,24 @@ export default function PurchasePage() {
                       <td style={{ ...td, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-muted)', fontSize: '11.5px' }} title={p.invoiceNo || ''}>
                         {p.invoiceNo || '—'}
                       </td>
-                      <td style={{ ...td, textAlign: 'center', paddingRight: '12px' }}>
-                        <button
-                          onClick={() => confirmDelete(p)}
-                          className="btn-icon"
-                          title="Delete"
-                          style={{ color: 'var(--text-muted)', opacity: 0.4, padding: '5px' }}
-                          onMouseEnter={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.color = 'var(--danger)'; e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
-                          onMouseLeave={e => { e.currentTarget.style.opacity = '0.4'; e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-                        >
-                          <IconTrash />
-                        </button>
+                      <td style={{ ...td, textAlign: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                          <button onClick={() => setViewPurch(p)} title="View" className="btn-icon" style={{ color: '#1d4ed8', background: '#eff6ff', borderColor: '#bfdbfe', padding: '5px' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#dbeafe'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#eff6ff'; }}>
+                            <IconEye />
+                          </button>
+                          <button onClick={() => openEdit(p)} title="Edit" className="btn-icon" style={{ color: '#15803d', background: '#f0fdf4', borderColor: '#bbf7d0', padding: '5px' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#dcfce7'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#f0fdf4'; }}>
+                            <IconEdit />
+                          </button>
+                          <button onClick={() => confirmDelete(p)} title="Delete" className="btn-icon" style={{ color: '#ef4444', background: '#fef2f2', borderColor: '#fecaca', padding: '5px' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = '#fef2f2'; }}>
+                            <IconTrash />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -362,6 +414,127 @@ export default function PurchasePage() {
           </div>
         )}
       </div>
+
+      {/* ── View Modal ── */}
+      {viewPurch && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(15,31,92,0.5)', backdropFilter: 'blur(6px)' }}>
+          <div className="ps-card" style={{ width: '100%', maxWidth: '440px', overflow: 'hidden' }}>
+            <div style={{ background: 'linear-gradient(135deg,#0D1B3E,#1e3a8a)', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Purchase Detail</p>
+                <p style={{ margin: '3px 0 0', fontSize: '16px', fontWeight: 800, color: '#fff' }}>{getProductName(viewPurch.productId)}</p>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</p>
+                <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace' }}>Rs. {fmt(viewPurch.total)}</p>
+              </div>
+            </div>
+            <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {[
+                ['Date',        fmtDate(viewPurch.date)],
+                ['Product',     getProductName(viewPurch.productId)],
+                ['Quantity',    `${fmtQty(viewPurch.quantity)} ${getProductUnit(viewPurch.productId)}`],
+                ['Rate',        `Rs. ${fmt(viewPurch.rate)}`],
+                ['Total',       `Rs. ${fmt(viewPurch.total)}`],
+                ['Supplier',    getSupplierName(viewPurch.supplierId) || '—'],
+                ['Payment',     (viewPurch.paymentMode || 'cash').charAt(0).toUpperCase() + (viewPurch.paymentMode || 'cash').slice(1)],
+                ['Invoice No',  viewPurch.invoiceNo || '—'],
+                ['Note',        viewPurch.note || '—'],
+              ].map(([label, value]) => (
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #f1f5f9' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>{label}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 700, color: '#0D1B3E' }}>{value}</span>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button onClick={() => { setViewPurch(null); openEdit(viewPurch); }} className="btn-outline" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                <IconEdit /> Edit
+              </button>
+              <button onClick={() => setViewPurch(null)} className="btn-primary">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Modal ── */}
+      {editPurch && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(15,31,92,0.5)', backdropFilter: 'blur(6px)' }}>
+          <div className="ps-card" style={{ width: '100%', maxWidth: '520px', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc' }}>
+              <h3 style={{ fontWeight: 700, fontSize: '15px', color: '#0f1f5c', margin: 0 }}>Edit Purchase</h3>
+              <button onClick={() => setEditPurch(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px' }}><IconX /></button>
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {/* Date + Product */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="ps-label">Date *</label>
+                  <input type="date" className="ps-input" value={editForm.date || ''} onChange={e => setEditForm(p => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="ps-label">Product *</label>
+                  <select className="ps-input" value={editForm.productId || ''} onChange={e => setEditForm(p => ({ ...p, productId: e.target.value }))}>
+                    <option value="">— Select —</option>
+                    {products.map(pr => <option key={pr.id} value={pr.id}>{pr.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              {/* Qty + Rate + Total */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="ps-label">Quantity *</label>
+                  <input className="ps-input" inputMode="decimal" value={editForm.quantity || ''} onChange={e => { const q = e.target.value; const r = parseFloat(editForm.rate || 0); setEditForm(p => ({ ...p, quantity: q, total: q && r ? (parseFloat(q) * r).toFixed(2) : p.total })); }} />
+                </div>
+                <div>
+                  <label className="ps-label">Rate (Rs.) *</label>
+                  <input className="ps-input" inputMode="decimal" value={editForm.rate || ''} onChange={e => { const r = e.target.value; const q = parseFloat(editForm.quantity || 0); setEditForm(p => ({ ...p, rate: r, total: r && q ? (q * parseFloat(r)).toFixed(2) : p.total })); }} />
+                </div>
+                <div>
+                  <label className="ps-label">Total (Rs.)</label>
+                  <input className="ps-input" inputMode="decimal" value={editForm.total || ''} onChange={e => setEditForm(p => ({ ...p, total: e.target.value }))} />
+                </div>
+              </div>
+              {/* Supplier + Payment */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="ps-label">Supplier</label>
+                  <select className="ps-input" value={editForm.supplierId || ''} onChange={e => setEditForm(p => ({ ...p, supplierId: e.target.value }))}>
+                    <option value="">— None —</option>
+                    {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="ps-label">Payment Mode</label>
+                  <select className="ps-input" value={editForm.paymentMode || 'cash'} onChange={e => setEditForm(p => ({ ...p, paymentMode: e.target.value }))}>
+                    <option value="cash">Cash</option>
+                    <option value="credit">Credit</option>
+                    <option value="card">Card</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+              </div>
+              {/* Invoice + Note */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="ps-label">Invoice No</label>
+                  <input className="ps-input" value={editForm.invoiceNo || ''} onChange={e => setEditForm(p => ({ ...p, invoiceNo: e.target.value }))} placeholder="Optional" />
+                </div>
+                <div>
+                  <label className="ps-label">Note</label>
+                  <input className="ps-input" value={editForm.note || ''} onChange={e => setEditForm(p => ({ ...p, note: e.target.value }))} placeholder="Optional" />
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setEditPurch(null)} className="btn-outline">Cancel</button>
+              <button onClick={handleEditSave} disabled={editLoading || !editForm.productId || !editForm.quantity || !editForm.rate} className="btn-primary" style={{ opacity: editLoading ? 0.75 : 1 }}>
+                {editLoading ? <><span className="spinner" /> Saving…</> : <><IconSave /> Save Changes</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Delete Modal ── */}
       {deleteId && (
