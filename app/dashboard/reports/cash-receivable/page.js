@@ -9,12 +9,15 @@ export default function CashReceivablePage() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const accounts = getAccounts();
-    const customers = accounts.filter(a => a.type === 'Customer');
-    setData(customers.map(c => ({
-      ...c,
-      balance: parseFloat(c.currentBalance || 0),
-    })).filter(c => c.balance > 0));
+    const load = async () => {
+      const accounts = await getAccounts();
+      const customers = accounts.filter(a => a.type === 'Customer');
+      setData(customers.map(c => ({
+        ...c,
+        balance: parseFloat(c.currentBalance || 0),
+      })).filter(c => c.balance > 0));
+    };
+    load();
   }, []);
 
   const total = data.reduce((s, d) => s + d.balance, 0);

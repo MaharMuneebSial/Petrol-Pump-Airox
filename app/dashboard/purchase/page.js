@@ -42,8 +42,11 @@ export default function PurchasePage() {
   const [dateTo, setDateTo] = useState('');
   const [deleteId, setDeleteId] = useState(null);
 
-  const load = () => { setPurchases(getPurchases()); setProducts(getProducts()); setAccounts(getAccounts()); };
-  useEffect(load, []);
+  const load = async () => {
+    const [p, pr, a] = await Promise.all([getPurchases(), getProducts(), getAccounts()]);
+    setPurchases(p); setProducts(pr); setAccounts(a);
+  };
+  useEffect(() => { load(); }, []);
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
   const getSupplierName = (id) => accounts.find(a => a.id === id)?.name || 'Cash';
@@ -52,14 +55,14 @@ export default function PurchasePage() {
     const prod = getProductName(p.productId);
     const supp = getSupplierName(p.supplierId);
     const matchSearch = prod.toLowerCase().includes(search.toLowerCase()) || supp.toLowerCase().includes(search.toLowerCase());
-    const date = p.date || p.createdAt?.slice(0, 10) || '';
+    const date = p.date || '';
     return matchSearch && (!dateFrom || date >= dateFrom) && (!dateTo || date <= dateTo);
-  }).sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const totalAmt = filtered.reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const totalQty = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
 
-  const handleDelete = (id) => { deletePurchase(id); load(); setDeleteId(null); };
+  const handleDelete = async (id) => { await deletePurchase(id); await load(); setDeleteId(null); };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
@@ -127,7 +130,7 @@ export default function PurchasePage() {
                 filtered.map((p, i) => (
                   <tr key={p.id}>
                     <td style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>{i + 1}</td>
-                    <td style={{ color: '#475569', fontSize: '13px' }}>{p.date || p.createdAt?.slice(0, 10)}</td>
+                    <td style={{ color: '#475569', fontSize: '13px' }}>{p.date}</td>
                     <td style={{ fontWeight: 600, color: '#0f1f5c', fontSize: '13px' }}>{getProductName(p.productId)}</td>
                     <td style={{ textAlign: 'right', fontWeight: 700, color: '#7c3aed', fontSize: '13px' }}>{fmt(p.quantity)}</td>
                     <td style={{ textAlign: 'right', color: '#475569', fontSize: '13px' }}>Rs. {fmt(p.rate)}</td>

@@ -13,21 +13,23 @@ export default function PurchaseReportPage() {
   const [productFilter, setProductFilter] = useState('');
 
   useEffect(() => {
-    setPurchases(getPurchases());
-    setProducts(getProducts());
-    setAccounts(getAccounts());
+    const load = async () => {
+      const [p, pr, a] = await Promise.all([getPurchases(), getProducts(), getAccounts()]);
+      setPurchases(p); setProducts(pr); setAccounts(a);
+    };
+    load();
   }, []);
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
   const getSupplierName = (id) => id ? (accounts.find(a => a.id === id)?.name || 'Unknown') : 'Cash';
 
   const filtered = purchases.filter(p => {
-    const date = p.date || p.createdAt?.slice(0, 10) || '';
+    const date = p.date || '';
     const matchFrom = !dateFrom || date >= dateFrom;
     const matchTo = !dateTo || date <= dateTo;
     const matchProd = !productFilter || p.productId === productFilter;
     return matchFrom && matchTo && matchProd;
-  }).sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const totalAmt = filtered.reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const totalQty = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
@@ -147,7 +149,7 @@ export default function PurchaseReportPage() {
               ) : filtered.map((p, i) => (
                 <tr key={p.id}>
                   <td className="text-sm" style={{ color: '#94a3b8' }}>{i + 1}</td>
-                  <td className="text-sm" style={{ color: '#475569' }}>{p.date || p.createdAt?.slice(0, 10)}</td>
+                  <td className="text-sm" style={{ color: '#475569' }}>{p.date}</td>
                   <td className="font-medium text-sm" style={{ color: '#0f1f5c' }}>{getProductName(p.productId)}</td>
                   <td className="text-right text-sm" style={{ color: '#7c3aed' }}>{fmt(p.quantity)}</td>
                   <td className="text-right text-sm" style={{ color: '#475569' }}>Rs. {fmt(p.rate)}</td>

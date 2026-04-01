@@ -129,9 +129,12 @@ export default function DashboardPage() {
   const [now, setNow] = useState('');
 
   useEffect(() => {
-    setSummary(getDashboardSummary());
-    setCompany(getCompany());
-    setNow(new Date().toLocaleDateString('en-PK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    const load = async () => {
+      setSummary(await getDashboardSummary());
+      setCompany(getCompany());
+      setNow(new Date().toLocaleDateString('en-PK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+    };
+    load();
   }, []);
 
   if (!summary) return (

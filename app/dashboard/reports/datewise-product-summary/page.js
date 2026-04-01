@@ -11,23 +11,25 @@ export default function DatewiseProductSummaryPage() {
   const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
-    const sales = getSales();
-    const prods = getProducts();
-    setProducts(prods);
+    const load = async () => {
+      const [sales, prods] = await Promise.all([getSales(), getProducts()]);
+      setProducts(prods);
 
-    const dateProductMap = {};
-    sales.forEach(s => {
-      const date = (s.date || s.createdAt?.slice(0, 10));
-      if (!date) return;
-      const prod = prods.find(p => p.id === s.productId);
-      const prodName = prod?.name || 'Unknown';
-      const key = `${date}__${prodName}`;
-      if (!dateProductMap[key]) dateProductMap[key] = { date, product: prodName, qty: 0, amt: 0 };
-      dateProductMap[key].qty += parseFloat(s.quantity || 0);
-      dateProductMap[key].amt += parseFloat(s.total || 0);
-    });
+      const dateProductMap = {};
+      sales.forEach(s => {
+        const date = s.date;
+        if (!date) return;
+        const prod = prods.find(p => p.id === s.productId);
+        const prodName = prod?.name || 'Unknown';
+        const key = `${date}__${prodName}`;
+        if (!dateProductMap[key]) dateProductMap[key] = { date, product: prodName, qty: 0, amt: 0 };
+        dateProductMap[key].qty += parseFloat(s.quantity || 0);
+        dateProductMap[key].amt += parseFloat(s.total || 0);
+      });
 
-    setRows(Object.values(dateProductMap).sort((a, b) => new Date(b.date) - new Date(a.date)));
+      setRows(Object.values(dateProductMap).sort((a, b) => new Date(b.date) - new Date(a.date)));
+    };
+    load();
   }, []);
 
   const filtered = rows.filter(r => {

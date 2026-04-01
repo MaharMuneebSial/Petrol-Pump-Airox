@@ -7,14 +7,15 @@ const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).
 export default function TradingAccountPage() {
   const [data, setData] = useState(null);
   useEffect(() => {
-    const sales = getSales();
-    const purchases = getPurchases();
-    const products = getProducts();
-    const totalSales = sales.reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const totalPurchases = purchases.reduce((s, v) => s + parseFloat(v.total || 0), 0);
-    const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
-    const grossProfit = totalSales - totalPurchases;
-    setData({ totalSales, totalPurchases, stockValue, grossProfit });
+    const load = async () => {
+      const [sales, purchases, products] = await Promise.all([getSales(), getPurchases(), getProducts()]);
+      const totalSales = sales.reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const totalPurchases = purchases.reduce((s, v) => s + parseFloat(v.total || 0), 0);
+      const stockValue = products.reduce((s, p) => s + parseFloat(p.stock || 0) * parseFloat(p.rate || 0), 0);
+      const grossProfit = totalSales - totalPurchases;
+      setData({ totalSales, totalPurchases, stockValue, grossProfit });
+    };
+    load();
   }, []);
 
   if (!data) return <div className="py-20 text-center" style={{ color: '#94a3b8' }}>Loading...</div>;

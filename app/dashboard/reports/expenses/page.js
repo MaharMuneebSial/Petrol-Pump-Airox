@@ -17,13 +17,13 @@ export default function ExpensesPage() {
   const [dateTo, setDateTo] = useState('');
   const [catFilter, setCatFilter] = useState('');
 
-  const load = () => setExpenses(getExpenses());
-  useEffect(load, []);
+  const load = async () => setExpenses(await getExpenses());
+  useEffect(() => { load(); }, []);
 
   const filtered = expenses.filter(e => {
-    const date = e.date || e.createdAt?.slice(0, 10) || '';
+    const date = e.date || '';
     return (!dateFrom || date >= dateFrom) && (!dateTo || date <= dateTo) && (!catFilter || e.category === catFilter);
-  }).sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const total = filtered.reduce((s, e) => s + parseFloat(e.amount || 0), 0);
 
@@ -41,23 +41,21 @@ export default function ExpensesPage() {
     return errs;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
-    addExpense({ category: form.category, amount: parseFloat(form.amount), date: form.date, description: form.description.trim() });
-    setTimeout(() => {
-      setLoading(false);
-      setShowForm(false);
-      setForm({ category: 'Salary', amount: '', date: new Date().toISOString().slice(0, 10), description: '' });
-      load();
-    }, 400);
+    await addExpense({ category: form.category, amount: parseFloat(form.amount), date: form.date, description: form.description.trim() });
+    setLoading(false);
+    setShowForm(false);
+    setForm({ category: 'Salary', amount: '', date: new Date().toISOString().slice(0, 10), description: '' });
+    await load();
   };
 
-  const handleDelete = (id) => {
-    deleteExpense(id);
-    load();
+  const handleDelete = async (id) => {
+    await deleteExpense(id);
+    await load();
     setDeleteId(null);
   };
 
@@ -163,7 +161,7 @@ export default function ExpensesPage() {
               ) : filtered.map((e, i) => (
                 <tr key={e.id}>
                   <td className="text-sm" style={{ color: '#94a3b8' }}>{i + 1}</td>
-                  <td className="text-sm" style={{ color: '#475569' }}>{e.date || e.createdAt?.slice(0, 10)}</td>
+                  <td className="text-sm" style={{ color: '#475569' }}>{e.date}</td>
                   <td><span className="badge badge-warning">{e.category}</span></td>
                   <td className="text-sm" style={{ color: '#374151' }}>{e.description || '—'}</td>
                   <td className="text-right font-bold text-sm" style={{ color: '#ef4444' }}>Rs. {fmt(e.amount)}</td>

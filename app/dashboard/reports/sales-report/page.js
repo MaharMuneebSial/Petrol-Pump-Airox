@@ -14,22 +14,24 @@ export default function SalesReportPage() {
   const [modeFilter, setModeFilter] = useState('');
 
   useEffect(() => {
-    setSales(getSales());
-    setProducts(getProducts());
-    setAccounts(getAccounts());
+    const load = async () => {
+      const [s, p, a] = await Promise.all([getSales(), getProducts(), getAccounts()]);
+      setSales(s); setProducts(p); setAccounts(a);
+    };
+    load();
   }, []);
 
   const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
   const getCustomerName = (id) => id ? (accounts.find(a => a.id === id)?.name || 'Unknown') : 'Cash';
 
   const filtered = sales.filter(s => {
-    const date = s.date || s.createdAt?.slice(0, 10) || '';
+    const date = s.date || '';
     const matchFrom = !dateFrom || date >= dateFrom;
     const matchTo = !dateTo || date <= dateTo;
     const matchProd = !productFilter || s.productId === productFilter;
     const matchMode = !modeFilter || s.paymentMode === modeFilter;
     return matchFrom && matchTo && matchProd && matchMode;
-  }).sort((a, b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
+  }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const totalAmt = filtered.reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const totalQty = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
@@ -151,7 +153,7 @@ export default function SalesReportPage() {
               ) : filtered.map((s, i) => (
                 <tr key={s.id}>
                   <td className="text-sm" style={{ color: '#94a3b8' }}>{i + 1}</td>
-                  <td className="text-sm" style={{ color: '#475569' }}>{s.date || s.createdAt?.slice(0, 10)}</td>
+                  <td className="text-sm" style={{ color: '#475569' }}>{s.date}</td>
                   <td className="text-sm" style={{ color: '#374151' }}>{getCustomerName(s.customerId)}</td>
                   <td className="font-medium text-sm" style={{ color: '#0f1f5c' }}>{getProductName(s.productId)}</td>
                   <td className="text-right text-sm" style={{ color: '#7c3aed' }}>{fmt(s.quantity)}</td>
