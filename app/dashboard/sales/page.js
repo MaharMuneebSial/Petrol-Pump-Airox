@@ -1,47 +1,368 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { getSales, getProducts, getAccounts, deleteSale } from '../../../lib/store';
+import { getSales, getProducts, getAccounts, deleteSale, updateSale, getSalePayments } from '../../../lib/store';
 
 const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).format(n || 0);
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
 
-const IconPlus = () => (
-  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-);
-const IconSearch = () => (
-  <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>
-);
-const IconTrending = () => (
-  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-    <polyline points="17 6 23 6 23 12"/>
-  </svg>
-);
-const IconTrash = () => (
-  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-  </svg>
-);
-const IconWarning = () => (
-  <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-    <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-  </svg>
-);
+// ─── Icons ────────────────────────────────────────────────────────────────────
+const IconPlus    = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
+const IconSearch  = () => <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const IconTrending= () => <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
+const IconTrash   = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>;
+const IconWarning = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconHash    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>;
+const IconDroplet = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>;
+const IconCash    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>;
+const IconCredit  = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>;
+const IconCalendar= () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IconX       = () => <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconEye     = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+const IconEdit    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
+const IconSave    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
+const IconCheck   = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>;
+const IconUser    = () => <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const IconChevron = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>;
+const IconPhone   = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>;
+const IconBank    = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>;
+const IconSplit   = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7-4-4-7 7"/></svg>;
 
+// ─── Payment config ───────────────────────────────────────────────────────────
+const PAYMENT_FILTER = [
+  { value: '',          label: 'All' },
+  { value: 'cash',      label: 'Cash',      color: '#059669', bg: '#dcfce7' },
+  { value: 'credit',    label: 'Credit',    color: '#dc2626', bg: '#fee2e2' },
+  { value: 'card',      label: 'Card',      color: '#2563eb', bg: '#dbeafe' },
+  { value: 'online',    label: 'Online',    color: '#d97706', bg: '#fef3c7' },
+  { value: 'jazzcash',  label: 'JazzCash',  color: '#be185d', bg: '#fce7f3' },
+  { value: 'easypaisa', label: 'EasyPaisa', color: '#15803d', bg: '#dcfce7' },
+  { value: 'bank',      label: 'Bank',      color: '#1d4ed8', bg: '#dbeafe' },
+  { value: 'split',     label: 'Split',     color: '#4338ca', bg: '#ede9fe' },
+];
+
+const MODE_CONFIG = {
+  cash:      { label: 'Cash',      color: '#059669', bg: '#f0fdf4', border: '#6ee7b7', Icon: IconCash    },
+  credit:    { label: 'Credit',    color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', Icon: IconCredit  },
+  card:      { label: 'Card',      color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', Icon: IconCredit  },
+  online:    { label: 'Online',    color: '#d97706', bg: '#fffbeb', border: '#fcd34d', Icon: IconCash    },
+  jazzcash:  { label: 'JazzCash',  color: '#be185d', bg: '#fdf2f8', border: '#f9a8d4', Icon: IconPhone   },
+  easypaisa: { label: 'EasyPaisa', color: '#15803d', bg: '#f0fdf4', border: '#86efac', Icon: IconPhone   },
+  bank:      { label: 'Bank',      color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd', Icon: IconBank    },
+  split:     { label: 'Split',     color: '#4338ca', bg: '#f5f3ff', border: '#c4b5fd', Icon: IconSplit   },
+};
+
+const PayBadge = ({ mode }) => {
+  const c = MODE_CONFIG[mode] || { label: mode, color: '#64748b', bg: '#f1f5f9', border: '#e2e8f0' };
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10.5px', fontWeight: 700, color: c.color, background: c.bg, border: `1px solid ${c.border}`, borderRadius: '6px', padding: '2px 7px', whiteSpace: 'nowrap' }}>
+      {c.Icon && <c.Icon />} {c.label}
+    </span>
+  );
+};
+
+// ─── Action button ────────────────────────────────────────────────────────────
+function ActionBtn({ onClick, icon, bg, color, border, title }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button onClick={onClick} title={title}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ width: '28px', height: '28px', borderRadius: '7px', border: `1.5px solid ${border}`, background: hov ? bg : '#fff', color, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s', flexShrink: 0 }}>
+      {icon}
+    </button>
+  );
+}
+
+// ─── View Modal ───────────────────────────────────────────────────────────────
+function ViewModal({ sale, productName, customerName, payments, onClose }) {
+  if (!sale) return null;
+  const cfg = MODE_CONFIG[sale.paymentMode] || MODE_CONFIG.cash;
+
+  const InfoRow = ({ label, value, accent }) => (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #f1f5f9' }}>
+      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: accent || '#0D1B3E' }}>{value}</span>
+    </div>
+  );
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
+      <div className="ps-card" style={{ width: '100%', maxWidth: '460px', overflow: 'hidden' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sale Detail</p>
+            <p style={{ margin: '3px 0 0', fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>{fmtDate(sale.date)}</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</p>
+            <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace' }}>Rs. {fmt(sale.total)}</p>
+          </div>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '16px 20px' }}>
+          <InfoRow label="Product"  value={productName} />
+          <InfoRow label="Customer" value={customerName} />
+          <InfoRow label="Quantity" value={`${fmt(sale.quantity)} ${sale.unit || 'Ltr'}`} accent="#7c3aed" />
+          <InfoRow label="Rate"     value={`Rs. ${fmt(sale.rate)} / ${sale.unit || 'Ltr'}`} />
+
+          {/* Payment */}
+          <div style={{ padding: '9px 0', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Payment</span>
+            <PayBadge mode={sale.paymentMode} />
+          </div>
+
+          {/* Split breakdown */}
+          {payments.length > 0 && (
+            <div style={{ marginTop: '10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+              <div style={{ padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                <p style={{ margin: 0, fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Payment Breakdown</p>
+              </div>
+              {payments.map((p, i) => {
+                const pc = MODE_CONFIG[p.mode] || {};
+                return (
+                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '9px 12px', borderBottom: i < payments.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <PayBadge mode={p.mode} />
+                      {p.meta?.phone     && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>📱 {p.meta.phone}{p.meta.txnId ? ` · TXN: ${p.meta.txnId}` : ''}</span>}
+                      {p.meta?.bankName  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>🏦 {p.meta.bankName} · {p.meta.accountNo}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
+                      {p.meta?.lastFour  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>💳 ****{p.meta.lastFour}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: pc.color || '#0D1B3E', fontFamily: 'monospace', flexShrink: 0, marginLeft: '12px' }}>Rs. {fmt(p.amount)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {sale.note && (
+            <div style={{ marginTop: '10px', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', border: '1px solid #f1f5f9' }}>
+              <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Note</p>
+              <p style={{ margin: 0, fontSize: '12.5px', color: '#475569' }}>{sale.note}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Edit Modal ───────────────────────────────────────────────────────────────
+const SIMPLE_MODES = [
+  { value: 'cash',      label: 'Cash',      solid: '#059669', bg: '#f0fdf4', border: '#6ee7b7' },
+  { value: 'credit',    label: 'Credit',    solid: '#dc2626', bg: '#fef2f2', border: '#fca5a5' },
+  { value: 'card',      label: 'Card',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
+  { value: 'online',    label: 'Online',    solid: '#d97706', bg: '#fffbeb', border: '#fcd34d' },
+  { value: 'jazzcash',  label: 'JazzCash',  solid: '#db2777', bg: '#fdf2f8', border: '#f9a8d4' },
+  { value: 'easypaisa', label: 'EasyPaisa', solid: '#16a34a', bg: '#f0fdf4', border: '#86efac' },
+  { value: 'bank',      label: 'Bank',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
+];
+
+function EditModal({ sale, productName, customers, onSave, onClose }) {
+  const [form, setForm] = useState({
+    date:        sale.date        || '',
+    quantity:    sale.quantity?.toString() || '',
+    rate:        sale.rate?.toString()     || '',
+    total:       sale.total?.toString()    || '',
+    paymentMode: sale.paymentMode === 'split' ? 'cash' : (sale.paymentMode || 'cash'),
+    customerId:  sale.customerId  || '',
+    note:        sale.note        || '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  // Customer combobox
+  const [custSearch, setCustSearch]   = useState(() => customers.find(c => c.id === sale.customerId)?.name || '');
+  const [showCustDrop, setShowCustDrop] = useState(false);
+  const custRef = useRef(null);
+
+  useEffect(() => {
+    const h = (e) => { if (custRef.current && !custRef.current.contains(e.target)) setShowCustDrop(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
+  const filteredCusts = customers.filter(c => c.name?.toLowerCase().includes(custSearch.toLowerCase()));
+
+  const recalc = (qty, rate) => {
+    const t = ((parseFloat(qty) || 0) * (parseFloat(rate) || 0)).toFixed(2);
+    setForm(p => ({ ...p, total: t }));
+  };
+
+  const handleChange = (field) => (e) => {
+    const val = e.target.value;
+    setForm(p => {
+      const up = { ...p, [field]: val };
+      if (field === 'quantity') recalc(val, p.rate);
+      if (field === 'rate')     recalc(p.quantity, val);
+      return up;
+    });
+  };
+
+  const total = parseFloat(form.total) || 0;
+
+  const handleSave = async () => {
+    setSaving(true);
+    await onSave(sale.id, {
+      date:        form.date,
+      quantity:    parseFloat(form.quantity),
+      rate:        parseFloat(form.rate),
+      total:       parseFloat(form.total),
+      paymentMode: form.paymentMode,
+      customerId:  form.customerId || null,
+      note:        form.note.trim(),
+    });
+    setSaving(false);
+  };
+
+  const inp = (extra = {}) => ({
+    width: '100%', boxSizing: 'border-box', padding: '8px 11px', fontSize: '13px',
+    fontFamily: 'inherit', border: '1.5px solid #e2e8f0', borderRadius: '8px',
+    background: '#fff', color: '#0D1B3E', outline: 'none', ...extra,
+  });
+  const lbl = { display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.03em' };
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
+      <div className="ps-card" style={{ width: '100%', maxWidth: '520px', overflow: 'visible' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Edit Sale</p>
+            <p style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: 700, color: '#fff' }}>{productName}</p>
+          </div>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <IconX />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
+
+          {sale.paymentMode === 'split' && (
+            <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#92400e' }}>
+              ⚠ This sale used split payment. You can change it to a single mode below, but split breakdown will be kept in records.
+            </div>
+          )}
+
+          {/* Date */}
+          <div>
+            <label style={lbl}>Sale Date *</label>
+            <input type="date" style={inp()} value={form.date} onChange={handleChange('date')} />
+          </div>
+
+          {/* Qty + Rate */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div>
+              <label style={lbl}>Quantity *</label>
+              <input style={inp()} placeholder="0.00" value={form.quantity} onChange={handleChange('quantity')} inputMode="decimal" />
+            </div>
+            <div>
+              <label style={lbl}>Rate (Rs.) *</label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', fontSize: '11px', fontWeight: 700, color: '#94a3b8', pointerEvents: 'none' }}>Rs.</span>
+                <input style={inp({ paddingLeft: '34px' })} placeholder="0.00" value={form.rate} onChange={handleChange('rate')} inputMode="decimal" />
+              </div>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Amount</span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: total > 0 ? '#F0A500' : 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}>Rs. {fmt(total)}</span>
+          </div>
+
+          {/* Payment Mode */}
+          <div>
+            <label style={lbl}>Payment Mode *</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {SIMPLE_MODES.map(({ value, label, solid, bg, border }) => {
+                const sel = form.paymentMode === value;
+                return (
+                  <button key={value} type="button" onClick={() => setForm(p => ({ ...p, paymentMode: value }))}
+                    style={{ padding: '6px 12px', borderRadius: '7px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.12s', background: sel ? solid : bg, color: sel ? '#fff' : solid, border: `1.5px solid ${sel ? solid : border}` }}>
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Customer */}
+          <div>
+            <label style={lbl}>Customer {form.paymentMode === 'credit' ? '* (required)' : '(Optional)'}</label>
+            <div ref={custRef} style={{ position: 'relative' }}>
+              <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', zIndex: 1 }}><IconUser /></span>
+              <input style={inp({ paddingLeft: '30px', paddingRight: '28px', cursor: 'pointer' })}
+                placeholder="Walk-in / Cash Customer"
+                value={custSearch}
+                readOnly={!showCustDrop}
+                onClick={() => { setShowCustDrop(true); setCustSearch(''); }}
+                onChange={(e) => setCustSearch(e.target.value)}
+              />
+              <span style={{ position: 'absolute', right: '9px', top: '50%', transform: `translateY(-50%) rotate(${showCustDrop ? 180 : 0}deg)`, transition: 'transform 0.2s', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}><IconChevron /></span>
+              {showCustDrop && (
+                <div style={{ position: 'absolute', top: 'calc(100% + 3px)', left: 0, right: 0, zIndex: 300, background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.10)', maxHeight: '160px', overflowY: 'auto' }}>
+                  <div onClick={() => { setForm(p => ({ ...p, customerId: '' })); setCustSearch(''); setShowCustDrop(false); }}
+                    style={{ padding: '9px 14px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #f1f5f9', color: '#94a3b8', fontStyle: 'italic' }}
+                    onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    Walk-in / Cash Customer
+                  </div>
+                  {filteredCusts.map(c => (
+                    <div key={c.id}
+                      onClick={() => { setForm(p => ({ ...p, customerId: c.id })); setCustSearch(c.name); setShowCustDrop(false); }}
+                      style={{ padding: '9px 14px', cursor: 'pointer', fontSize: '13px', borderBottom: '1px solid #f1f5f9', color: '#0D1B3E', fontWeight: 500 }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                      {c.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Note */}
+          <div>
+            <label style={lbl}>Note (Optional)</label>
+            <textarea style={{ ...inp(), resize: 'vertical', lineHeight: 1.5 }} rows={2} placeholder="Additional notes..." value={form.note} onChange={handleChange('note')} />
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <button onClick={handleSave} disabled={saving}
+            style={{ padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, background: '#0D1B3E', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.75 : 1, fontFamily: 'inherit' }}>
+            {saving ? <><span className="spinner" /> Saving...</> : <><IconSave /> Save Changes</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
 export default function SalesPage() {
-  const [sales, setSales] = useState([]);
+  const [sales,    setSales]    = useState([]);
   const [products, setProducts] = useState([]);
   const [accounts, setAccounts] = useState([]);
-  const [search, setSearch] = useState('');
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [search,     setSearch]     = useState('');
+  const [dateFrom,   setDateFrom]   = useState('');
+  const [dateTo,     setDateTo]     = useState('');
   const [filterMode, setFilterMode] = useState('');
-  const [deleteId, setDeleteId] = useState(null);
+
+  const [deleteId,   setDeleteId]   = useState(null);
+  const [viewSale,   setViewSale]   = useState(null);   // { sale, payments }
+  const [editSale,   setEditSale]   = useState(null);   // sale object
 
   const load = async () => {
     const [s, p, a] = await Promise.all([getSales(), getProducts(), getAccounts()]);
@@ -49,8 +370,9 @@ export default function SalesPage() {
   };
   useEffect(() => { load(); }, []);
 
-  const getProductName = (id) => products.find(p => p.id === id)?.name || 'Unknown';
+  const getProductName  = (id) => products.find(p => p.id === id)?.name  || 'Unknown';
   const getCustomerName = (id) => id ? (accounts.find(a => a.id === id)?.name || 'Unknown') : 'Cash Customer';
+  const customers = accounts.filter(a => a.type === 'Customer');
 
   const filtered = sales.filter(s => {
     const prod = getProductName(s.productId);
@@ -60,102 +382,159 @@ export default function SalesPage() {
     return matchSearch && (!dateFrom || date >= dateFrom) && (!dateTo || date <= dateTo) && (!filterMode || s.paymentMode === filterMode);
   }).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const totalAmt = filtered.reduce((s, p) => s + parseFloat(p.total || 0), 0);
-  const totalQty = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
-  const cashSales = filtered.filter(s => s.paymentMode === 'cash').reduce((s, p) => s + parseFloat(p.total || 0), 0);
+  const totalAmt    = filtered.reduce((s, p) => s + parseFloat(p.total    || 0), 0);
+  const totalQty    = filtered.reduce((s, p) => s + parseFloat(p.quantity || 0), 0);
+  const cashSales   = filtered.filter(s => s.paymentMode === 'cash').reduce((s, p) => s + parseFloat(p.total || 0), 0);
   const creditSales = filtered.filter(s => s.paymentMode === 'credit').reduce((s, p) => s + parseFloat(p.total || 0), 0);
-
-  const modeColors = { cash: 'badge-success', credit: 'badge-danger', card: 'badge-info', online: 'badge-warning' };
 
   const handleDelete = async (id) => { await deleteSale(id); await load(); setDeleteId(null); };
 
+  const handleView = async (sale) => {
+    const payments = await getSalePayments(sale.id);
+    setViewSale({ sale, payments });
+  };
+
+  const handleSaveEdit = async (id, updates) => {
+    await updateSale(id, updates);
+    await load();
+    setEditSale(null);
+  };
+
+  const hasFilters = search || dateFrom || dateTo || filterMode;
+  const clearFilters = () => { setSearch(''); setDateFrom(''); setDateTo(''); setFilterMode(''); };
+
+  const STATS = [
+    { label: 'Total Records', value: sales.length,            sub: `${filtered.length} filtered`, Icon: IconHash,    color: '#1e3a8a', accent: '#3b82f6', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)' },
+    { label: 'Volume',        value: `${fmt(totalQty)} Ltr`,  sub: 'Total quantity',              Icon: IconDroplet, color: '#6b21a8', accent: '#9333ea', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)' },
+    { label: 'Cash Sales',    value: `Rs. ${fmt(cashSales)}`, sub: 'Cash payments',               Icon: IconCash,    color: '#065f46', accent: '#10b981', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)' },
+    { label: 'Credit Sales',  value: `Rs. ${fmt(creditSales)}`,sub: 'On account',                Icon: IconCredit,  color: '#991b1b', accent: '#ef4444', bg: 'linear-gradient(135deg,#fff1f2,#fee2e2)' },
+  ];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-      <div className="ps-page-header">
-        <div>
-          <h1 className="ps-page-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <IconTrending /> Sales List
-          </h1>
-          <p className="ps-page-subtitle">All fuel and product sales</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '34px', height: '34px', borderRadius: '10px', flexShrink: 0, background: 'linear-gradient(135deg,#0D1B3E,#1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+            <IconTrending />
+          </div>
+          <div>
+            <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0D1B3E', letterSpacing: '-0.025em', lineHeight: 1.2 }}>Sales List</h1>
+            <p style={{ margin: 0, fontSize: '11.5px', color: '#94a3b8', marginTop: '1px' }}>All fuel and product sales</p>
+          </div>
         </div>
-        <Link href="/dashboard/sales/add" className="btn-gold">
+        <Link href="/dashboard/sales/add" className="btn-gold" style={{ fontSize: '12.5px', padding: '7px 14px' }}>
           <IconPlus /> Add Sale
         </Link>
       </div>
 
-      {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }} className="md:grid-cols-4">
-        {[
-          { label: 'Total Records', value: sales.length, color: '#0f1f5c', bg: 'linear-gradient(135deg, #eff6ff, #dbeafe)' },
-          { label: 'Quantity', value: `${fmt(totalQty)} Ltr`, color: '#7c3aed', bg: 'linear-gradient(135deg, #f5f3ff, #ede9fe)' },
-          { label: 'Cash Sales', value: `Rs. ${fmt(cashSales)}`, color: '#10b981', bg: 'linear-gradient(135deg, #f0fdf4, #dcfce7)' },
-          { label: 'Credit Sales', value: `Rs. ${fmt(creditSales)}`, color: '#ef4444', bg: 'linear-gradient(135deg, #fef2f2, #fee2e2)' },
-        ].map(s => (
-          <div key={s.label} className="ps-card" style={{ padding: '18px 20px', background: s.bg, border: 'none' }}>
-            <p style={{ fontSize: '11px', fontWeight: 600, color: s.color, textTransform: 'uppercase', letterSpacing: '0.07em', margin: '0 0 4px', opacity: 0.8 }}>{s.label}</p>
-            <p style={{ fontSize: '20px', fontWeight: 800, color: s.color, margin: 0, letterSpacing: '-0.02em' }}>{s.value}</p>
+      {/* Stat Cards */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '10px' }}>
+        {STATS.map(({ label, value, sub, Icon, color, accent, bg }) => (
+          <div key={label} style={{ background: bg, borderRadius: '12px', padding: '12px 14px', border: `1px solid ${accent}22`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '9px', flexShrink: 0, background: `${accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent }}>
+              <Icon />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.07em', opacity: 0.75 }}>{label}</p>
+              <p style={{ margin: '1px 0 0', fontSize: '14px', fontWeight: 800, color, letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</p>
+              <p style={{ margin: 0, fontSize: '10px', color: accent, opacity: 0.75 }}>{sub}</p>
+            </div>
           </div>
         ))}
       </div>
 
+      {/* Main Card */}
       <div className="ps-card">
-        <div className="ps-toolbar">
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}><IconSearch /></span>
-            <input className="ps-input" placeholder="Search product or customer..." value={search} onChange={e => setSearch(e.target.value)} style={{ maxWidth: '240px', paddingLeft: '34px' }} />
+
+        {/* Toolbar */}
+        <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #f1f5f9', background: '#fafbfc' }}>
+          <div style={{ position: 'relative', flex: '1 1 180px', maxWidth: '220px' }}>
+            <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
+            <input className="ps-input" placeholder="Search product or customer…" value={search} onChange={e => setSearch(e.target.value)}
+              style={{ paddingLeft: '30px', fontSize: '12px', padding: '6px 10px 6px 30px' }} />
+            {search && (
+              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '7px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', padding: 0 }}><IconX /></button>
+            )}
           </div>
-          <input type="date" className="ps-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ maxWidth: '160px' }} />
-          <input type="date" className="ps-input" value={dateTo} onChange={e => setDateTo(e.target.value)} style={{ maxWidth: '160px' }} />
-          <select className="ps-input" value={filterMode} onChange={e => setFilterMode(e.target.value)} style={{ maxWidth: '150px' }}>
-            <option value="">All Payments</option>
-            <option value="cash">Cash</option>
-            <option value="credit">Credit</option>
-            <option value="card">Card</option>
-            <option value="online">Online</option>
-          </select>
-          <span style={{ marginLeft: 'auto', fontSize: '13px', color: '#64748b', fontWeight: 500 }}>{filtered.length} records</span>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '0 0 auto' }}>
+            <span style={{ color: '#94a3b8', display: 'flex' }}><IconCalendar /></span>
+            <input type="date" className="ps-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '130px', fontSize: '12px', padding: '6px 8px' }} />
+            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>–</span>
+            <input type="date" className="ps-input" value={dateTo}   onChange={e => setDateTo(e.target.value)}   style={{ width: '130px', fontSize: '12px', padding: '6px 8px' }} />
+          </div>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', flex: '0 0 auto' }}>
+            {PAYMENT_FILTER.map(({ value, label, color, bg }) => {
+              const active = filterMode === value;
+              return (
+                <button key={value} onClick={() => setFilterMode(value)}
+                  style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', border: 'none', background: active ? (bg || '#0D1B3E') : '#f1f5f9', color: active ? (color || '#fff') : '#64748b', outline: active && !value ? '2px solid #0D1B3E' : 'none', outlineOffset: '-2px', transition: 'all 0.12s' }}>
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {hasFilters && (
+              <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', background: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5', fontFamily: 'inherit' }}>
+                <IconX /> Clear
+              </button>
+            )}
+            <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>{filtered.length} record{filtered.length !== 1 ? 's' : ''}</span>
+          </div>
         </div>
 
+        {/* Table */}
         <div style={{ overflowX: 'auto' }}>
           <table className="ps-table">
             <thead>
               <tr>
-                <th>#</th><th>Date</th><th>Customer</th><th>Product</th>
-                <th style={{ textAlign: 'right' }}>Qty (Ltr)</th>
+                <th style={{ width: '36px' }}>#</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Product</th>
+                <th style={{ textAlign: 'right' }}>Qty</th>
                 <th style={{ textAlign: 'right' }}>Rate</th>
                 <th style={{ textAlign: 'right' }}>Total (Rs.)</th>
                 <th>Payment</th>
-                <th style={{ textAlign: 'center' }}>Actions</th>
+                <th style={{ textAlign: 'center', width: '96px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={9} style={{ padding: '60px 20px', textAlign: 'center', color: '#94a3b8' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ opacity: 0.3, color: '#0f1f5c' }}><IconTrending /></span>
-                      <p style={{ fontWeight: 600, margin: 0 }}>No sales found</p>
-                      <Link href="/dashboard/sales/add" style={{ fontSize: '12px', color: '#0f1f5c', textDecoration: 'none', fontWeight: 600 }}>Record first sale →</Link>
+                  <td colSpan={9} style={{ padding: '50px 20px', textAlign: 'center', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '7px' }}>
+                      <span style={{ opacity: 0.25, color: '#0D1B3E' }}><IconTrending /></span>
+                      <p style={{ fontWeight: 700, margin: 0, fontSize: '13px', color: '#64748b' }}>No sales found</p>
+                      {hasFilters
+                        ? <button onClick={clearFilters} style={{ fontSize: '12px', color: '#0D1B3E', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontFamily: 'inherit' }}>Clear filters →</button>
+                        : <Link href="/dashboard/sales/add" style={{ fontSize: '12px', color: '#0D1B3E', textDecoration: 'none', fontWeight: 600 }}>Record first sale →</Link>
+                      }
                     </div>
                   </td>
                 </tr>
               ) : (
                 filtered.map((s, i) => (
                   <tr key={s.id}>
-                    <td style={{ color: '#94a3b8', fontSize: '12px', fontWeight: 600 }}>{i + 1}</td>
-                    <td style={{ color: '#475569', fontSize: '13px' }}>{s.date}</td>
-                    <td style={{ color: '#374151', fontSize: '13px', fontWeight: 500 }}>{getCustomerName(s.customerId)}</td>
-                    <td style={{ fontWeight: 600, color: '#0f1f5c', fontSize: '13px' }}>{getProductName(s.productId)}</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700, color: '#7c3aed', fontSize: '13px' }}>{fmt(s.quantity)}</td>
-                    <td style={{ textAlign: 'right', color: '#475569', fontSize: '13px' }}>Rs. {fmt(s.rate)}</td>
-                    <td style={{ textAlign: 'right', fontWeight: 700, color: '#10b981', fontSize: '13px' }}>Rs. {fmt(s.total)}</td>
-                    <td>
-                      <span className={`badge ${modeColors[s.paymentMode] || 'badge-gray'}`}>
-                        {s.paymentMode?.charAt(0).toUpperCase() + s.paymentMode?.slice(1)}
-                      </span>
-                    </td>
+                    <td style={{ color: '#94a3b8', fontSize: '11.5px', fontWeight: 700 }}>{i + 1}</td>
+                    <td style={{ color: '#475569', fontSize: '12px', whiteSpace: 'nowrap' }}>{fmtDate(s.date)}</td>
+                    <td style={{ color: '#374151', fontSize: '12.5px', fontWeight: 500 }}>{getCustomerName(s.customerId)}</td>
+                    <td style={{ fontWeight: 700, color: '#0D1B3E', fontSize: '12.5px' }}>{getProductName(s.productId)}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 700, color: '#7c3aed', fontSize: '12.5px', fontVariantNumeric: 'tabular-nums' }}>{fmt(s.quantity)}</td>
+                    <td style={{ textAlign: 'right', color: '#475569', fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>Rs.&nbsp;{fmt(s.rate)}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 700, color: '#059669', fontSize: '12.5px', fontVariantNumeric: 'tabular-nums' }}>Rs.&nbsp;{fmt(s.total)}</td>
+                    <td><PayBadge mode={s.paymentMode} /></td>
                     <td style={{ textAlign: 'center' }}>
-                      <button onClick={() => setDeleteId(s.id)} className="btn-danger btn-sm"><IconTrash /> Delete</button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                        <ActionBtn onClick={() => handleView(s)} icon={<IconEye />}   bg="#f0fdf4" color="#059669" border="#6ee7b7" title="View details" />
+                        <ActionBtn onClick={() => setEditSale(s)} icon={<IconEdit />} bg="#eff6ff" color="#2563eb" border="#93c5fd" title="Edit sale" />
+                        <ActionBtn onClick={() => setDeleteId(s.id)} icon={<IconTrash />} bg="#fef2f2" color="#ef4444" border="#fca5a5" title="Delete sale" />
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -164,10 +543,10 @@ export default function SalesPage() {
             {filtered.length > 0 && (
               <tfoot>
                 <tr>
-                  <td colSpan={4} style={{ padding: '12px 16px', fontWeight: 700, fontSize: '13px', color: '#0f1f5c' }}>Total</td>
-                  <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 800, color: '#7c3aed', fontSize: '13px' }}>{fmt(totalQty)}</td>
+                  <td colSpan={4} style={{ padding: '10px 16px', fontWeight: 700, fontSize: '12px', color: '#0D1B3E' }}>Totals ({filtered.length} records)</td>
+                  <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 800, color: '#7c3aed', fontSize: '12.5px', fontVariantNumeric: 'tabular-nums' }}>{fmt(totalQty)}</td>
                   <td />
-                  <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 800, color: '#10b981', fontSize: '13px' }}>Rs. {fmt(totalAmt)}</td>
+                  <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 800, color: '#059669', fontSize: '12.5px', fontVariantNumeric: 'tabular-nums' }}>Rs.&nbsp;{fmt(totalAmt)}</td>
                   <td colSpan={2} />
                 </tr>
               </tfoot>
@@ -176,19 +555,42 @@ export default function SalesPage() {
         </div>
       </div>
 
+      {/* ── View Modal ── */}
+      {viewSale && (
+        <ViewModal
+          sale={viewSale.sale}
+          productName={getProductName(viewSale.sale.productId)}
+          customerName={getCustomerName(viewSale.sale.customerId)}
+          payments={viewSale.payments}
+          onClose={() => setViewSale(null)}
+        />
+      )}
+
+      {/* ── Edit Modal ── */}
+      {editSale && (
+        <EditModal
+          sale={editSale}
+          productName={getProductName(editSale.productId)}
+          customers={customers}
+          onSave={handleSaveEdit}
+          onClose={() => setEditSale(null)}
+        />
+      )}
+
+      {/* ── Delete Modal ── */}
       {deleteId && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
-          <div className="ps-card" style={{ maxWidth: '360px', width: '100%', padding: '28px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
-              <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', flexShrink: 0 }}><IconWarning /></div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(3px)' }}>
+          <div className="ps-card" style={{ maxWidth: '340px', width: '100%', padding: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#fef2f2', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', flexShrink: 0 }}><IconWarning /></div>
               <div>
-                <h3 style={{ fontWeight: 700, fontSize: '16px', color: '#0f1f5c', margin: '0 0 6px' }}>Delete Sale?</h3>
-                <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>This will reverse stock changes. This cannot be undone.</p>
+                <h3 style={{ fontWeight: 700, fontSize: '15px', color: '#0D1B3E', margin: '0 0 5px' }}>Delete Sale?</h3>
+                <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0, lineHeight: 1.5 }}>This action cannot be undone. Stock changes will not be reversed automatically.</p>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '10px', marginTop: '22px' }}>
-              <button onClick={() => handleDelete(deleteId)} className="btn-danger" style={{ flex: 1, justifyContent: 'center', padding: '10px' }}><IconTrash /> Delete</button>
-              <button onClick={() => setDeleteId(null)} className="btn-outline" style={{ flex: 1, justifyContent: 'center', padding: '10px' }}>Cancel</button>
+            <div style={{ display: 'flex', gap: '8px', marginTop: '20px' }}>
+              <button onClick={() => handleDelete(deleteId)} className="btn-danger" style={{ flex: 1, justifyContent: 'center', padding: '8px' }}><IconTrash /> Delete</button>
+              <button onClick={() => setDeleteId(null)} className="btn-outline" style={{ flex: 1, justifyContent: 'center', padding: '8px' }}>Cancel</button>
             </div>
           </div>
         </div>
