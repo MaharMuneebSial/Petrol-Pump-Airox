@@ -186,11 +186,12 @@ export default function Sidebar({ collapsed, onToggle }) {
                   width: 'calc(100% - 12px)',
                   borderRadius: '8px',
                   background: anyChildActive ? 'rgba(240,165,0,0.1)' : 'transparent',
+                  borderTop: 'none', borderRight: 'none', borderBottom: 'none',
                   borderLeft: anyChildActive && !collapsed ? '2px solid #F0A500' : '2px solid transparent',
                   color: anyChildActive ? '#F0A500' : '#7A90AA',
                   fontWeight: anyChildActive ? 600 : 400,
                   fontSize: '12px',
-                  border: 'none', cursor: 'pointer',
+                  cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   fontFamily: 'inherit',
                 }}
