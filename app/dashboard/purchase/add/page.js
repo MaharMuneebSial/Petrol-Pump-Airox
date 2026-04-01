@@ -176,6 +176,19 @@ const IconInfo = () => (
 
 const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
 
+function Field({ label, hint, error, span, children }) {
+  return (
+    <div style={{ gridColumn: span ? `span ${span}` : undefined }}>
+      <label className="ps-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+        <span>{label}</span>
+        {hint && <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: '#0f1f5c', fontWeight: 500, background: '#eff6ff', padding: '2px 6px', borderRadius: '4px' }}><IconInfo />{hint}</span>}
+      </label>
+      {children}
+      {error && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px' }}>{error}</p>}
+    </div>
+  );
+}
+
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 export default function AddPurchasePage() {
   const router = useRouter();
@@ -260,17 +273,6 @@ export default function AddPurchasePage() {
   const totalVal = parseFloat(form.total) || 0;
   const hasTotal = totalVal > 0;
   const supplierName = suppliers.find(s => s.id === form.supplierId)?.name;
-
-  const Field = ({ label, hint, error, span, children }) => (
-    <div style={{ gridColumn: span ? `span ${span}` : undefined }}>
-      <label className="ps-label" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-        <span>{label}</span>
-        {hint && <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: '#0f1f5c', fontWeight: 500, background: '#eff6ff', padding: '2px 6px', borderRadius: '4px' }}><IconInfo />{hint}</span>}
-      </label>
-      {children}
-      {error && <p style={{ fontSize: '11px', color: '#ef4444', marginTop: '4px' }}>{error}</p>}
-    </div>
-  );
 
   return (
     <div style={{ maxWidth: '960px', display: 'flex', flexDirection: 'column', gap: '16px' }}>

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getVouchers, addVoucher, deleteVoucher, getAccounts } from '../../../lib/store';
+import { getVouchers, addVoucher, deleteVoucher, updateVoucher, getAccounts } from '../../../lib/store';
 
 const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).format(n || 0);
 
@@ -32,6 +32,12 @@ const IconWarning = () => (
     <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
   </svg>
 );
+const IconEdit = () => (
+  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
 const IconReceipt = () => (
   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -51,6 +57,9 @@ function VouchersContent() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+  const [editVoucher, setEditVoucher] = useState(null);
+  const [editForm, setEditForm] = useState({});
+  const [editLoading, setEditLoading] = useState(false);
 
   const load = async () => {
     const [v, a] = await Promise.all([getVouchers(), getAccounts()]);
@@ -86,6 +95,25 @@ function VouchersContent() {
   };
 
   const handleDelete = async (id) => { await deleteVoucher(id); await load(); setDeleteId(null); };
+
+  const openEdit = (v) => {
+    setEditVoucher(v);
+    setEditForm({ accountId: v.accountId, amount: v.amount, date: v.date, description: v.description || '' });
+  };
+
+  const handleEditSave = async () => {
+    if (!editForm.accountId || !editForm.amount || parseFloat(editForm.amount) <= 0) return;
+    setEditLoading(true);
+    await updateVoucher(editVoucher.id, {
+      accountId: editForm.accountId,
+      amount: parseFloat(editForm.amount),
+      date: editForm.date,
+      description: editForm.description.trim() || null,
+    });
+    setEditLoading(false);
+    setEditVoucher(null);
+    await load();
+  };
 
   const isReceipt = activeType === 'receipt';
   const accentColor = isReceipt ? '#10b981' : '#ef4444';
@@ -238,7 +266,17 @@ function VouchersContent() {
                       Rs. {fmt(v.amount)}
                     </td>
                     <td style={{ textAlign: 'center' }}>
-                      <button onClick={() => setDeleteId(v.id)} className="btn-danger btn-sm"><IconTrash /> Delete</button>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                        <button
+                          onClick={() => openEdit(v)}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '7px', fontSize: '12px', fontWeight: 600, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', cursor: 'pointer' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = '#dcfce7'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = '#f0fdf4'; }}
+                        >
+                          <IconEdit /> Edit
+                        </button>
+                        <button onClick={() => setDeleteId(v.id)} className="btn-danger btn-sm"><IconTrash /> Delete</button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -256,6 +294,51 @@ function VouchersContent() {
           </table>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editVoucher && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(15,31,92,0.45)', backdropFilter: 'blur(6px)' }}>
+          <div className="ps-card" style={{ maxWidth: '460px', width: '100%', overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: `2px solid ${accentColor}`, background: accentBg, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontWeight: 700, fontSize: '15px', color: isReceipt ? '#15803d' : '#b91c1c', margin: 0 }}>
+                Edit {isReceipt ? 'Receipt' : 'Payment'} Voucher
+              </h3>
+              <button onClick={() => setEditVoucher(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: '4px' }}>
+                <IconX />
+              </button>
+            </div>
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label className="ps-label">Account *</label>
+                  <select className="ps-input" value={editForm.accountId || ''} onChange={e => setEditForm(p => ({ ...p, accountId: e.target.value }))}>
+                    <option value="">— Select Account —</option>
+                    {accounts.map(a => <option key={a.id} value={a.id}>{a.name} ({a.type})</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="ps-label">Amount (Rs.) *</label>
+                  <input className="ps-input" inputMode="decimal" placeholder="0.00" value={editForm.amount || ''} onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="ps-label">Date *</label>
+                  <input type="date" className="ps-input" value={editForm.date || ''} onChange={e => setEditForm(p => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="ps-label">Description</label>
+                  <input className="ps-input" placeholder="Reason..." value={editForm.description || ''} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+              <button onClick={() => setEditVoucher(null)} className="btn-outline">Cancel</button>
+              <button onClick={handleEditSave} disabled={editLoading || !editForm.accountId || !editForm.amount} className="btn-primary" style={{ opacity: editLoading ? 0.75 : 1 }}>
+                {editLoading ? <><span className="spinner" /> Saving…</> : <><IconSave /> Save Changes</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {deleteId && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
