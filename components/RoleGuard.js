@@ -76,9 +76,12 @@ export default function RoleGuard({ children }) {
         <div style={{
           width: '56px', height: '56px', borderRadius: '14px',
           background: '#fef2f2', display: 'flex', alignItems: 'center',
-          justifyContent: 'center', fontSize: '24px',
+          justifyContent: 'center',
         }}>
-          🔒
+          <svg width="24" height="24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
         </div>
         <h2 style={{ fontWeight: 700, fontSize: '16px', color: '#1E293B', margin: 0 }}>
           Access Denied

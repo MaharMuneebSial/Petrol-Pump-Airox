@@ -60,17 +60,17 @@ export default function Header({ onToggleSidebar }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             width: '28px', height: '28px',
-            background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+            background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
             borderRadius: '7px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', boxShadow: '0 3px 8px rgba(240,165,0,0.3)',
+            color: 'white', boxShadow: '0 3px 8px rgba(37,99,235,0.3)',
           }}>
             <IconFuel />
           </div>
           <span className="hidden sm:block" style={{
             color: 'white', fontWeight: 800, fontSize: '13px', letterSpacing: '0.06em',
           }}>
-            PETRO<span style={{ color: '#F0A500' }}>STATION</span>
+            PETRO<span style={{ color: '#93C5FD' }}>STATION</span>
           </span>
         </div>
       </div>
@@ -80,12 +80,12 @@ export default function Header({ onToggleSidebar }) {
         <div className="hidden md:flex" style={{
           alignItems: 'center', gap: '7px',
           padding: '5px 14px', borderRadius: '999px',
-          background: 'rgba(240,165,0,0.1)',
-          border: '1px solid rgba(240,165,0,0.2)',
+          background: 'rgba(37,99,235,0.1)',
+          border: '1px solid rgba(37,99,235,0.2)',
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
         }}>
           <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669', boxShadow: '0 0 5px #059669' }} />
-          <span style={{ color: '#F0A500', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', opacity: 0.85 }}>
+          <span style={{ color: '#93C5FD', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', opacity: 0.85 }}>
             PUMP CODE:
           </span>
           <span style={{ color: 'white', fontSize: '11px', fontWeight: 800, letterSpacing: '0.12em' }}>
@@ -113,7 +113,7 @@ export default function Header({ onToggleSidebar }) {
           >
             <div style={{
               width: '28px', height: '28px', borderRadius: '7px',
-              background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'white', fontWeight: 800, fontSize: '10px', flexShrink: 0,
               letterSpacing: '0.02em',
@@ -148,12 +148,12 @@ export default function Header({ onToggleSidebar }) {
               <div style={{
                 padding: '12px 14px',
                 borderBottom: '1px solid rgba(255,255,255,0.07)',
-                background: 'rgba(240,165,0,0.05)',
+                background: 'rgba(37,99,235,0.05)',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
                     width: '34px', height: '34px', borderRadius: '9px',
-                    background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+                    background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'white', fontWeight: 800, fontSize: '12px',
                     flexShrink: 0,

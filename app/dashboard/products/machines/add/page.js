@@ -44,6 +44,11 @@ const IconDroplet = () => (
     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
   </svg>
 );
+const IconGauge = () => (
+  <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3"/>
+  </svg>
+);
 
 const NOZZLE_OPTIONS = [1, 2, 3, 4, 6, 8];
 
@@ -51,6 +56,7 @@ export default function AddMachinePage() {
   const router = useRouter();
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState({ name: '', machineNo: '', productId: '', nozzleCount: '2' });
+  const [nozzleReadings, setNozzleReadings] = useState({ 1: '', 2: '' });
   const [errors, setErrors]   = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -67,12 +73,31 @@ export default function AddMachinePage() {
 
   useEffect(() => { getProducts().then(setProducts); }, []);
 
+  // Reset nozzle readings when nozzle count changes
+  useEffect(() => {
+    const n = parseInt(form.nozzleCount) || 0;
+    const r = {};
+    for (let i = 1; i <= n; i++) r[i] = '';
+    setNozzleReadings(r);
+    setErrors(p => {
+      const next = { ...p };
+      for (let i = 1; i <= 8; i++) delete next[`nozzle_${i}`];
+      return next;
+    });
+  }, [form.nozzleCount]);
+
   const validate = () => {
     const errs = {};
     if (!form.name.trim())    errs.name       = 'Machine name is required';
     if (!form.machineNo.trim()) errs.machineNo = 'Machine number is required';
     if (!form.productId)      errs.productId  = 'Select a product';
-    if (!form.nozzleCount || parseInt(form.nozzleCount) < 1) errs.nozzleCount = 'Select nozzle count';
+    const nc = parseInt(form.nozzleCount);
+    if (!form.nozzleCount || nc < 1) errs.nozzleCount = 'Select nozzle count';
+    for (let i = 1; i <= nc; i++) {
+      const v = nozzleReadings[i];
+      if (v === '' || v === undefined) errs[`nozzle_${i}`] = 'Required';
+      else if (isNaN(+v) || +v < 0)   errs[`nozzle_${i}`] = 'Invalid number';
+    }
     return errs;
   };
 
@@ -82,10 +107,11 @@ export default function AddMachinePage() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setLoading(true);
     await addMachine({
-      name:        form.name.trim(),
-      machineNo:   form.machineNo.trim(),
-      productId:   form.productId,
-      nozzleCount: parseInt(form.nozzleCount),
+      name:          form.name.trim(),
+      machineNo:     form.machineNo.trim(),
+      productId:     form.productId,
+      nozzleCount:   parseInt(form.nozzleCount),
+      nozzleReadings,
     });
     setLoading(false);
     setSuccess(true);
@@ -140,13 +166,13 @@ export default function AddMachinePage() {
         <div style={{
           display: 'flex', alignItems: 'center', gap: '10px',
           padding: '10px 14px', borderRadius: '9px',
-          background: '#FFFBEB', border: '1px solid #FDE68A',
+          background: '#EFF6FF', border: '1px solid #BFDBFE',
         }}>
-          <svg width="15" height="15" fill="none" stroke="#D97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <svg width="15" height="15" fill="none" stroke="#1D4ED8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
             <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-          <span style={{ fontSize: '12px', color: '#92400E', fontWeight: 500 }}>
+          <span style={{ fontSize: '12px', color: '#1D4ED8', fontWeight: 500 }}>
             No products found.{' '}
             <Link href="/dashboard/products/add" style={{ color: '#0D1B3E', fontWeight: 700 }}>
               Add a product first →
@@ -168,7 +194,7 @@ export default function AddMachinePage() {
           }}>
             <div style={{
               width: '22px', height: '22px', borderRadius: '6px',
-              background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'white',
             }}>
@@ -416,6 +442,51 @@ export default function AddMachinePage() {
                   <span style={{ fontSize: '11px', fontWeight: 600, color: '#4338CA' }}>
                     {form.name || 'Machine'} — {selectedProduct.name} — {form.nozzleCount} nozzle{parseInt(form.nozzleCount) > 1 ? 's' : ''}
                   </span>
+                </div>
+              </div>
+            )}
+
+            {/* Initial Meter Readings */}
+            {parseInt(form.nozzleCount) > 0 && (
+              <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px dashed #E2E8F0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                  <IconGauge />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Initial Meter Readings
+                  </span>
+                  <span style={{ fontSize: '10.5px', color: '#94A3B8' }}>— current meter value on each nozzle</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '8px' }}>
+                  {Array.from({ length: parseInt(form.nozzleCount) }, (_, i) => i + 1).map(n => (
+                    <div key={n}>
+                      <label className="ps-label">
+                        Nozzle {n} <span style={{ color: '#DC2626' }}>*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        value={nozzleReadings[n] ?? ''}
+                        onChange={e => {
+                          setNozzleReadings(p => ({ ...p, [n]: e.target.value }));
+                          setErrors(p => ({ ...p, [`nozzle_${n}`]: '' }));
+                        }}
+                        className="ps-input"
+                        style={{
+                          textAlign: 'right',
+                          fontWeight: 700,
+                          borderColor: errors[`nozzle_${n}`] ? '#FCA5A5' : undefined,
+                          background: errors[`nozzle_${n}`] ? '#FFF5F5' : undefined,
+                        }}
+                      />
+                      {errors[`nozzle_${n}`] && (
+                        <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '4px' }}>
+                          <IconAlert /> {errors[`nozzle_${n}`]}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
