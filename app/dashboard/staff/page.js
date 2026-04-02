@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { getCompany, getRole, logActivity } from '../../../lib/store';
 
@@ -230,8 +230,8 @@ export default function StaffPage() {
               </thead>
               <tbody>
                 {staff.map((s, i) => (
-                  <>
-                    <tr key={s.id}>
+                  <React.Fragment key={s.id}>
+                    <tr>
                       <td style={{ ...td, color: '#94A3B8', fontSize: '11px' }}>{i + 1}</td>
                       <td style={{ ...td, fontWeight: 600, color: '#1E293B' }}>{s.name}</td>
                       <td style={{ ...td, color: '#64748B' }}>{s.email}</td>
@@ -314,7 +314,7 @@ export default function StaffPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
@@ -326,7 +326,7 @@ export default function StaffPage() {
       {showForm && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(15,31,92,0.45)', backdropFilter: 'blur(6px)' }}>
           <div className="ps-card animate-fade-in" style={{ maxWidth: '420px', width: '100%', padding: 0, overflow: 'hidden' }}>
-            <div style={{ background: 'linear-gradient(135deg,#0a1540,#0f1f5c)', padding: '18px 24px', borderBottom: '3px solid #F0A500' }}>
+            <div style={{ background: 'linear-gradient(135deg,#0a1540,#0f1f5c)', padding: '18px 24px', borderBottom: '3px solid #2563EB' }}>
               <h3 style={{ color: 'white', fontWeight: 700, fontSize: '15px', margin: 0 }}>
                 {editStaff ? 'Edit Staff Member' : 'Add New Staff'}
               </h3>

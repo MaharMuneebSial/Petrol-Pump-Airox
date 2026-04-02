@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { isAuthenticated, getCompany, clearSession } from '../../lib/store';
 import { supabase } from '../../lib/supabase';
@@ -11,10 +11,18 @@ export default function DashboardLayout({ children }) {
   const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const didCheck = useRef(false);
 
   useEffect(() => {
+    if (didCheck.current) return;
+    didCheck.current = true;
+
+    if (!isAuthenticated()) {
+      router.replace('/signin');
+      return;
+    }
+
     setMounted(true);
-    if (!isAuthenticated()) { router.replace('/signin'); return; }
 
     const company = getCompany();
     const staffId = company?.staffId;
@@ -39,12 +47,11 @@ export default function DashboardLayout({ children }) {
 
           // Update permissions in localStorage
           const current = getCompany();
-          localStorage.setItem('ps_company', JSON.stringify({
+          sessionStorage.setItem('ps_company', JSON.stringify({
             ...current,
             permissions: updated.permissions || {},
           }));
 
-          // Notify RoleGuard and Sidebar to re-check
           window.dispatchEvent(new Event('ps-permissions-updated'));
         }
       )
@@ -57,14 +64,12 @@ export default function DashboardLayout({ children }) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0f1f5c' }}>
         <div className="text-center">
-          <span style={{ fontSize: '32px' }}>⛽</span>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#3B82F6', animation: 'spin 0.7s linear infinite', margin: '0 auto 12px' }} />
           <p className="text-white mt-2 font-semibold text-sm">Loading PetroStation...</p>
         </div>
       </div>
     );
   }
-
-  if (!isAuthenticated()) return null;
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#f1f5f9' }}>

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import { setSession, isAuthenticated } from '../../lib/store';
@@ -72,7 +72,7 @@ function BgShapes() {
         <div key={i} style={{
           position: 'absolute', left: d.x, top: d.y,
           width: d.s, height: d.s * 1.45,
-          background: `rgba(245,158,11,${0.04 + (i % 3) * 0.02})`,
+          background: `rgba(37,99,235,${0.04 + (i % 3) * 0.02})`,
           borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
           transform: `rotate(${d.r}deg)`,
           animation: `float ${4 + i * 0.7}s ease-in-out ${d.delay}s infinite`,
@@ -82,7 +82,7 @@ function BgShapes() {
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%, -50%)',
         width: '600px', height: '600px',
-        background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(37,99,235,0.06) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
     </div>
@@ -97,14 +97,14 @@ function PumpSelector({ pumps, onSelect }) {
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           width: '72px', height: '72px', borderRadius: '20px',
-          background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+          background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
           marginBottom: '16px',
-          boxShadow: '0 8px 32px rgba(245,158,11,0.4)',
+          boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
           color: 'white',
         }}>
           <IconFuel />
         </div>
-        <h1 style={{ color: '#f59e0b', fontWeight: 800, fontSize: '26px', letterSpacing: '0.06em', margin: 0 }}>
+        <h1 style={{ color: 'white', fontWeight: 800, fontSize: '26px', letterSpacing: '0.06em', margin: 0 }}>
           PETROL PUMP
         </h1>
         <p style={{ color: '#93c5fd', fontSize: '13px', marginTop: '6px' }}>
@@ -120,7 +120,7 @@ function PumpSelector({ pumps, onSelect }) {
         <div style={{
           background: 'linear-gradient(135deg, #0a1540, #0f1f5c)',
           padding: '20px 28px 18px',
-          borderBottom: '3px solid #f59e0b',
+          borderBottom: '3px solid #2563EB',
         }}>
           <h2 style={{ color: 'white', fontWeight: 700, fontSize: '18px', margin: 0, textAlign: 'center' }}>
             Your Stations
@@ -142,13 +142,13 @@ function PumpSelector({ pumps, onSelect }) {
                 cursor: 'pointer', textAlign: 'left', marginBottom: '8px',
                 transition: 'all 0.15s', fontFamily: 'inherit',
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(245,158,11,0.15)'; }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#F8FAFC'; e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(37,99,235,0.15)'; }}
               onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#E2E8F0'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
             >
               <div style={{
                 width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
-                background: 'linear-gradient(135deg, #f59e0b20, #d9770620)',
-                color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'rgba(37,99,235,0.08)',
+                color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 <IconPump />
               </div>
@@ -181,14 +181,22 @@ export default function SignInPage() {
   const [authError, setAuthError]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [pumps, setPumps]             = useState([]);
+  const [authChecked, setAuthChecked] = useState(false);
+  const didRedirect                   = useRef(false);
 
   useEffect(() => {
-    if (isAuthenticated()) router.replace('/dashboard');
+    if (didRedirect.current) return;
+    if (isAuthenticated()) {
+      didRedirect.current = true;
+      router.replace('/dashboard');
+    } else {
+      setAuthChecked(true);
+    }
   }, []);
 
   const saveAndRedirect = (company, role, staffId = null, permissions = null, staffName = null) => {
     setSession(company.pump_code);
-    localStorage.setItem('ps_company', JSON.stringify({
+    sessionStorage.setItem('ps_company', JSON.stringify({
       id:           company.id,
       pumpCode:     company.pump_code,
       businessName: company.business_name,
@@ -264,6 +272,10 @@ export default function SignInPage() {
     setAuthError('');
   };
 
+  if (!authChecked) {
+    return <div className="auth-bg" style={{ minHeight: '100vh' }} />;
+  }
+
   return (
     <div className="auth-bg" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
       <BgShapes />
@@ -284,15 +296,15 @@ export default function SignInPage() {
             <div style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
               width: '72px', height: '72px', borderRadius: '20px',
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
               marginBottom: '16px',
-              boxShadow: '0 8px 32px rgba(245,158,11,0.4)',
+              boxShadow: '0 8px 32px rgba(37,99,235,0.4)',
               color: 'white',
               animation: 'pulse-ring 2.5s ease-in-out infinite',
             }}>
               <IconFuel />
             </div>
-            <h1 style={{ color: '#f59e0b', fontWeight: 800, fontSize: '26px', letterSpacing: '0.06em', margin: 0 }}>
+            <h1 style={{ color: 'white', fontWeight: 800, fontSize: '26px', letterSpacing: '0.06em', margin: 0 }}>
               PETROL PUMP
             </h1>
             <p style={{ color: '#93c5fd', fontSize: '13px', marginTop: '6px', fontWeight: 400 }}>
@@ -309,7 +321,7 @@ export default function SignInPage() {
             <div style={{
               background: 'linear-gradient(135deg, #0a1540, #0f1f5c)',
               padding: '20px 28px 18px',
-              borderBottom: '3px solid #f59e0b',
+              borderBottom: '3px solid #2563EB',
             }}>
               <h2 style={{ color: 'white', fontWeight: 700, fontSize: '18px', margin: 0, textAlign: 'center' }}>
                 Welcome Back
@@ -399,17 +411,17 @@ export default function SignInPage() {
                 style={{
                   width: '100%', padding: '13px 24px',
                   background: loading
-                    ? 'linear-gradient(135deg, #f59e0b80, #d9770680)'
-                    : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    ? 'linear-gradient(135deg, rgba(37,99,235,0.5), rgba(29,78,216,0.5))'
+                    : 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                   color: 'white', border: 'none', borderRadius: '12px',
                   fontWeight: 700, fontSize: '15px',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: loading ? 'none' : '0 6px 20px rgba(245,158,11,0.45)',
+                  boxShadow: loading ? 'none' : '0 6px 20px rgba(37,99,235,0.45)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
                   transition: 'all 0.2s', fontFamily: 'inherit', letterSpacing: '0.02em',
                 }}
-                onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(245,158,11,0.55)'; }}}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = loading ? 'none' : '0 6px 20px rgba(245,158,11,0.45)'; }}
+                onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(37,99,235,0.55)'; }}}
+                onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = loading ? 'none' : '0 6px 20px rgba(37,99,235,0.45)'; }}
               >
                 {loading ? <><span className="spinner" /> Signing In...</> : <>Sign Me In <IconArrow /></>}
               </button>
