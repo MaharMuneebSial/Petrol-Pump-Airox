@@ -1,7 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getRole, getCompany } from '../lib/store';
 
 const S = { w: '16', h: '16', f: 'none', s: 'currentColor', sw: '2', lc: 'round', lj: 'round', v: '0 0 24 24' };
 const IconGrid    = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>;
@@ -12,6 +13,8 @@ const IconReceipt = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} 
 const IconChart   = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>;
 const IconBox     = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>;
 const IconShield  = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
+const IconGauge   = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3"/></svg>;
+const IconActivity= () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
 const IconFuel    = () => <svg width={22} height={22} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 22V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M3 11h12"/><path d="M13 6l4 4"/><path d="M17 10v6a2 2 0 0 0 4 0v-4l-2-2"/></svg>;
 const IconChevron = ({ open }) => (
   <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"
@@ -21,9 +24,9 @@ const IconChevron = ({ open }) => (
 );
 
 const menuItems = [
-  { label: 'Dashboard', Icon: IconGrid, href: '/dashboard', exact: true },
+  { label: 'Dashboard', Icon: IconGrid, href: '/dashboard', exact: true, perm: false },
   {
-    label: 'Accounts', Icon: IconUsers,
+    label: 'Accounts', Icon: IconUsers, perm: 'accounts',
     children: [
       { label: 'Add Account',     href: '/dashboard/accounts/add' },
       { label: 'Manage Accounts', href: '/dashboard/accounts' },
@@ -31,28 +34,35 @@ const menuItems = [
     ],
   },
   {
-    label: 'Purchase', Icon: IconCart,
+    label: 'Purchase', Icon: IconCart, perm: 'purchase',
     children: [
       { label: 'Add Purchase',  href: '/dashboard/purchase/add' },
       { label: 'Purchase List', href: '/dashboard/purchase' },
     ],
   },
   {
-    label: 'Sales', Icon: IconTrend,
+    label: 'Sales', Icon: IconTrend, perm: 'sales_add',
     children: [
       { label: 'Add Sale',   href: '/dashboard/sales/add' },
-      { label: 'Sales List', href: '/dashboard/sales' },
+      { label: 'Sales List', href: '/dashboard/sales', perm: 'sales_list' },
     ],
   },
   {
-    label: 'Vouchers', Icon: IconReceipt,
+    label: 'Shifts', Icon: IconGauge, perm: 'shifts',
+    children: [
+      { label: 'Open Shift',  href: '/dashboard/shifts/open' },
+      { label: 'Shift List',  href: '/dashboard/shifts' },
+    ],
+  },
+  {
+    label: 'Vouchers', Icon: IconReceipt, perm: 'vouchers',
     children: [
       { label: 'Cash Receipt',  href: '/dashboard/vouchers?type=receipt' },
       { label: 'Cash Payment',  href: '/dashboard/vouchers?type=payment' },
     ],
   },
   {
-    label: 'Reports', Icon: IconChart,
+    label: 'Reports', Icon: IconChart, perm: 'reports',
     children: [
       { label: 'Cash Receivable',   href: '/dashboard/reports/cash-receivable' },
       { label: 'Cash Payable',      href: '/dashboard/reports/cash-payable' },
@@ -68,7 +78,7 @@ const menuItems = [
     ],
   },
   {
-    label: 'Products', Icon: IconBox,
+    label: 'Products', Icon: IconBox, perm: 'products',
     children: [
       { label: 'Add Product',      href: '/dashboard/products/add' },
       { label: 'Manage Products',  href: '/dashboard/products/manage' },
@@ -78,7 +88,14 @@ const menuItems = [
     ],
   },
   {
-    label: 'Security', Icon: IconShield,
+    label: 'Staff', Icon: IconUsers, perm: 'staff',
+    children: [
+      { label: 'Manage Staff', href: '/dashboard/staff' },
+    ],
+  },
+  { label: 'Activity Log', Icon: IconActivity, href: '/dashboard/activity', perm: null },
+  {
+    label: 'Security', Icon: IconShield, perm: null, // owner only
     children: [
       { label: 'Change Password', href: '/dashboard/security/change-password' },
       { label: 'Company Info',    href: '/dashboard/security/company-info' },
@@ -87,14 +104,42 @@ const menuItems = [
 ];
 
 export default function Sidebar({ collapsed, onToggle }) {
-  const pathname = usePathname();
+  const pathname  = usePathname();
+  const [permTick, setPermTick] = useState(0); // increments on realtime update
   const [openMenus, setOpenMenus] = useState({});
+
+  useEffect(() => {
+    const handler = () => setPermTick(t => t + 1);
+    window.addEventListener('ps-permissions-updated', handler);
+    return () => window.removeEventListener('ps-permissions-updated', handler);
+  }, []);
+
+  const role = getRole() || 'owner';
 
   const toggleMenu = (label) =>
     setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
 
   const isActive = (href, exact = false) =>
     exact ? pathname === href : pathname.startsWith(href);
+
+  const perms = getCompany()?.permissions || {};
+
+  const canSee = (item) => {
+    if (role === 'owner') return item.perm !== undefined; // owner sees all except undefined
+    if (item.perm === null)  return false;  // owner-only
+    if (item.perm === false) return true;   // always visible (dashboard)
+    return perms[item.perm] === true;       // check per-user permission
+  };
+
+  const visibleItems = menuItems
+    .filter(canSee)
+    .map(item => ({
+      ...item,
+      children: item.children?.filter(child =>
+        role === 'owner' ? true : (!child.perm || perms[child.perm] === true)
+      ),
+    }))
+    .filter(item => !item.children || item.children.length > 0);
 
   return (
     <div style={{
@@ -118,18 +163,18 @@ export default function Sidebar({ collapsed, onToggle }) {
       }}>
         <div style={{
           width: '32px', height: '32px', flexShrink: 0,
-          background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+          background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
           borderRadius: '9px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: 'white',
-          boxShadow: '0 4px 12px rgba(240,165,0,0.3)',
+          boxShadow: '0 4px 12px rgba(37,99,235,0.3)',
         }}>
           <IconFuel />
         </div>
         {!collapsed && (
           <div>
-            <div style={{ color: '#F0A500', fontWeight: 800, fontSize: '12px', letterSpacing: '0.1em', lineHeight: 1 }}>PETRO</div>
-            <div style={{ color: '#475569', fontWeight: 500, fontSize: '8.5px', letterSpacing: '0.15em', marginTop: '2px' }}>STATION</div>
+            <div style={{ color: 'white', fontWeight: 800, fontSize: '12px', letterSpacing: '0.1em', lineHeight: 1 }}>PETRO</div>
+            <div style={{ color: '#94A3B8', fontWeight: 500, fontSize: '8.5px', letterSpacing: '0.15em', marginTop: '2px' }}>STATION</div>
           </div>
         )}
       </div>
@@ -142,7 +187,7 @@ export default function Sidebar({ collapsed, onToggle }) {
           </div>
         )}
 
-        {menuItems.map((item) => {
+        {visibleItems.map((item) => {
           if (!item.children) {
             const active = isActive(item.href, item.exact);
             return (
@@ -154,9 +199,9 @@ export default function Sidebar({ collapsed, onToggle }) {
                 margin: '1px 6px',
                 borderRadius: '8px',
                 textDecoration: 'none',
-                color: active ? '#F0A500' : '#7A90AA',
-                background: active ? 'rgba(240,165,0,0.1)' : 'transparent',
-                borderLeft: active && !collapsed ? '2px solid #F0A500' : '2px solid transparent',
+                color: active ? '#93C5FD' : '#7A90AA',
+                background: active ? 'rgba(37,99,235,0.12)' : 'transparent',
+                borderLeft: active && !collapsed ? '2px solid #3B82F6' : '2px solid transparent',
                 fontWeight: active ? 600 : 400,
                 fontSize: '12px',
                 whiteSpace: 'nowrap',
@@ -185,17 +230,18 @@ export default function Sidebar({ collapsed, onToggle }) {
                   margin: '1px 6px',
                   width: 'calc(100% - 12px)',
                   borderRadius: '8px',
-                  background: anyChildActive ? 'rgba(240,165,0,0.1)' : 'transparent',
-                  borderLeft: anyChildActive && !collapsed ? '2px solid #F0A500' : '2px solid transparent',
-                  color: anyChildActive ? '#F0A500' : '#7A90AA',
+                  background: anyChildActive ? 'rgba(37,99,235,0.12)' : 'transparent',
+                  borderTop: 'none', borderRight: 'none', borderBottom: 'none',
+                  borderLeft: anyChildActive && !collapsed ? '2px solid #3B82F6' : '2px solid transparent',
+                  color: anyChildActive ? '#93C5FD' : '#7A90AA',
                   fontWeight: anyChildActive ? 600 : 400,
                   fontSize: '12px',
-                  border: 'none', cursor: 'pointer',
+                  cursor: 'pointer',
                   whiteSpace: 'nowrap',
                   fontFamily: 'inherit',
                 }}
                 onMouseEnter={e => { if (!anyChildActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#C8D6E5'; } }}
-                onMouseLeave={e => { if (!anyChildActive) { e.currentTarget.style.background = anyChildActive ? 'rgba(240,165,0,0.1)' : 'transparent'; e.currentTarget.style.color = anyChildActive ? '#F0A500' : '#7A90AA'; } }}
+                onMouseLeave={e => { if (!anyChildActive) { e.currentTarget.style.background = anyChildActive ? 'rgba(37,99,235,0.12)' : 'transparent'; e.currentTarget.style.color = anyChildActive ? '#93C5FD' : '#7A90AA'; } }}
               >
                 <span style={{ flexShrink: 0, opacity: anyChildActive ? 1 : 0.7 }}><item.Icon /></span>
                 {!collapsed && (
@@ -220,8 +266,8 @@ export default function Sidebar({ collapsed, onToggle }) {
                         display: 'flex', alignItems: 'center', gap: '7px',
                         padding: '5px 8px',
                         fontSize: '11.5px',
-                        color: childActive ? '#FCC032' : '#56708A',
-                        background: childActive ? 'rgba(240,165,0,0.08)' : 'transparent',
+                        color: childActive ? '#93C5FD' : '#56708A',
+                        background: childActive ? 'rgba(37,99,235,0.08)' : 'transparent',
                         textDecoration: 'none',
                         fontWeight: childActive ? 600 : 400,
                         whiteSpace: 'nowrap',
@@ -231,7 +277,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                         onMouseEnter={e => { if (!childActive) { e.currentTarget.style.color = '#A8BFCF'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; } }}
                         onMouseLeave={e => { if (!childActive) { e.currentTarget.style.color = '#56708A'; e.currentTarget.style.background = 'transparent'; } }}
                       >
-                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: childActive ? '#F0A500' : '#2D3F5A', flexShrink: 0 }} />
+                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: childActive ? '#3B82F6' : '#2D3F5A', flexShrink: 0 }} />
                         {child.label}
                       </Link>
                     );

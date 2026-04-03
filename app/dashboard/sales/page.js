@@ -73,9 +73,20 @@ function ActionBtn({ onClick, icon, bg, color, border, title }) {
   );
 }
 
+// ─── Info Row ─────────────────────────────────────────────────────────────────
+function InfoRow({ label, value, accent }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 0', borderBottom: '1px solid #f1f5f9' }}>
+      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: accent || '#0D1B3E' }}>{value}</span>
+    </div>
+  );
+}
+
 // ─── View Modal ───────────────────────────────────────────────────────────────
 function ViewModal({ sale, productName, customerName, payments, onClose }) {
   if (!sale) return null;
+  const cfg = MODE_CONFIG[sale.paymentMode] || MODE_CONFIG.cash;
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(10,18,40,0.65)', backdropFilter: 'blur(6px)' }}>

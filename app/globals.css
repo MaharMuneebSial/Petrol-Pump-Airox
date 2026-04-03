@@ -4,15 +4,15 @@
   --navy:        #0D1B3E;
   --navy-mid:    #122158;
   --navy-light:  #1a2f72;
-  --sidebar-bg:  #0B1529;
-  --gold:        #F0A500;
-  --gold-dark:   #D4920A;
-  --gold-light:  #FCC032;
+  --sidebar-bg:  #0F172A;
+  --gold:        #2563EB;
+  --gold-dark:   #1D4ED8;
+  --gold-light:  #3B82F6;
   --success:     #059669;
   --danger:      #DC2626;
-  --warning:     #D97706;
+  --warning:     #DC2626;
   --info:        #2563EB;
-  --page-bg:     #EEF2F7;
+  --page-bg:     #F1F5F9;
   --card-bg:     #FFFFFF;
   --text-primary:#1E293B;
   --text-secondary:#475569;
@@ -115,7 +115,7 @@ select.ps-input { cursor: pointer; }
   font-size: 12.5px;
   border: none;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(240,165,0,0.2), 0 4px 12px rgba(240,165,0,0.15);
+  box-shadow: 0 1px 3px rgba(37,99,235,0.2), 0 4px 12px rgba(37,99,235,0.15);
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -124,7 +124,7 @@ select.ps-input { cursor: pointer; }
 }
 .btn-gold:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(240,165,0,0.3), 0 8px 20px rgba(240,165,0,0.2);
+  box-shadow: 0 2px 6px rgba(37,99,235,0.3), 0 8px 20px rgba(37,99,235,0.2);
 }
 
 .btn-danger {
@@ -310,7 +310,7 @@ select.ps-input { cursor: pointer; }
 }
 .badge-success { background: #DCFCE7; color: #15803D; }
 .badge-danger  { background: #FEE2E2; color: #B91C1C; }
-.badge-warning { background: #FEF3C7; color: #B45309; }
+.badge-warning { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
 .badge-info    { background: #DBEAFE; color: #1D4ED8; }
 .badge-gray    { background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
 .badge-purple  { background: #F3E8FF; color: #7C3AED; }
@@ -337,9 +337,9 @@ select.ps-input { cursor: pointer; }
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0 rgba(240,165,0,0.4); }
-  70%  { box-shadow: 0 0 0 10px rgba(240,165,0,0); }
-  100% { box-shadow: 0 0 0 0 rgba(240,165,0,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(37,99,235,0.4); }
+  70%  { box-shadow: 0 0 0 10px rgba(37,99,235,0); }
+  100% { box-shadow: 0 0 0 0 rgba(37,99,235,0); }
 }
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }

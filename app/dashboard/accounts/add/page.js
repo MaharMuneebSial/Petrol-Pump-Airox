@@ -124,7 +124,7 @@ export default function AddAccountPage() {
   };
 
   return (
-    <div style={{ maxWidth: '860px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
       {/* ── Header ── */}
       <div>

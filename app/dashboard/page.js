@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { getDashboardSummary, getCompany } from '../../lib/store';
+import { getDashboardSummary, getCompany, getRole } from '../../lib/store';
 import Link from 'next/link';
 
 const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n || 0);
@@ -95,6 +95,15 @@ export default function DashboardPage() {
     load();
   }, []);
 
+  // Returns true if the current user can access a given permission key
+  const canAccess = (permKey) => {
+    const role = getRole();
+    if (!role) return false;
+    if (role === 'owner') return true;
+    const perms = getCompany()?.permissions || {};
+    return perms[permKey] === true;
+  };
+
   if (!summary) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 0' }}>
       <div style={{ textAlign: 'center' }}>
@@ -170,24 +179,28 @@ export default function DashboardPage() {
           </div>
 
           <div className="hidden md:flex" style={{ gap: '8px', position: 'relative', zIndex: 1 }}>
-            <Link href="/dashboard/sales/add" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              padding: '6px 12px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-              color: 'white', fontWeight: 700, fontSize: '11px',
-              borderRadius: '7px', textDecoration: 'none',
-              boxShadow: '0 3px 10px rgba(245,158,11,0.4)',
-            }}>
-              <IconTrending /> Add Sale
-            </Link>
-            <Link href="/dashboard/purchase/add" style={{
-              display: 'inline-flex', alignItems: 'center', gap: '5px',
-              padding: '6px 12px', background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.18)',
-              color: 'white', fontWeight: 600, fontSize: '11px',
-              borderRadius: '7px', textDecoration: 'none',
-            }}>
-              <IconCart /> Add Purchase
-            </Link>
+            {canAccess('sales_add') && (
+              <Link href="/dashboard/sales/add" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '6px 12px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: 'white', fontWeight: 700, fontSize: '11px',
+                borderRadius: '7px', textDecoration: 'none',
+                boxShadow: '0 3px 10px rgba(245,158,11,0.4)',
+              }}>
+                <IconTrending /> Add Sale
+              </Link>
+            )}
+            {canAccess('purchase') && (
+              <Link href="/dashboard/purchase/add" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                padding: '6px 12px', background: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.18)',
+                color: 'white', fontWeight: 600, fontSize: '11px',
+                borderRadius: '7px', textDecoration: 'none',
+              }}>
+                <IconCart /> Add Purchase
+              </Link>
+            )}
           </div>
         </div>
 
@@ -387,11 +400,11 @@ export default function DashboardPage() {
               </div>
               <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {[
-                  { label: 'Add Sale', desc: 'Record a new fuel sale', href: '/dashboard/sales/add', Icon: IconTrending, color: '#059669', grad: 'linear-gradient(135deg,#059669,#10b981)', bg: '#f0fdf4', border: '#bbf7d0' },
-                  { label: 'Add Purchase', desc: 'Log a fuel purchase entry', href: '/dashboard/purchase/add', Icon: IconCart, color: '#7c3aed', grad: 'linear-gradient(135deg,#7c3aed,#8b5cf6)', bg: '#f5f3ff', border: '#ddd6fe' },
-                  { label: 'Add Account', desc: 'Register customer / supplier', href: '/dashboard/accounts/add', Icon: IconUsers, color: '#2563eb', grad: 'linear-gradient(135deg,#1d4ed8,#2563eb)', bg: '#eff6ff', border: '#bfdbfe' },
-                  { label: 'View Reports', desc: 'Sales & expense summary', href: '/dashboard/reports/summary-sheet', Icon: IconManage, color: '#d97706', grad: 'linear-gradient(135deg,#d97706,#f59e0b)', bg: '#fffbeb', border: '#fde68a' },
-                ].map(a => (
+                  { label: 'Add Sale',      desc: 'Record a new fuel sale',        href: '/dashboard/sales/add',                Icon: IconTrending, color: '#059669', grad: 'linear-gradient(135deg,#059669,#10b981)', bg: '#f0fdf4', border: '#bbf7d0', perm: 'sales_add' },
+                  { label: 'Add Purchase',  desc: 'Log a fuel purchase entry',      href: '/dashboard/purchase/add',             Icon: IconCart,     color: '#7c3aed', grad: 'linear-gradient(135deg,#7c3aed,#8b5cf6)', bg: '#f5f3ff', border: '#ddd6fe', perm: 'purchase' },
+                  { label: 'Add Account',   desc: 'Register customer / supplier',   href: '/dashboard/accounts/add',             Icon: IconUsers,    color: '#2563eb', grad: 'linear-gradient(135deg,#1d4ed8,#2563eb)', bg: '#eff6ff', border: '#bfdbfe', perm: 'accounts' },
+                  { label: 'View Reports',  desc: 'Sales & expense summary',        href: '/dashboard/reports/summary-sheet',    Icon: IconManage,   color: '#d97706', grad: 'linear-gradient(135deg,#d97706,#f59e0b)', bg: '#fffbeb', border: '#fde68a', perm: 'reports'   },
+                ].filter(a => canAccess(a.perm)).map(a => (
                   <Link key={a.label} href={a.href} style={{
                     display: 'flex', alignItems: 'center', gap: '10px',
                     padding: '8px 10px', borderRadius: '9px',
