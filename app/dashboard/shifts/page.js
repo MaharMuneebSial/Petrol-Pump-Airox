@@ -35,8 +35,8 @@ export default function ShiftsPage() {
       .from('shifts')
       .select(`
         id, shift_date, shift_duration, status, total_liters, total_amount, note, opened_at, closed_at,
-        machines(id, name, machine_no, nozzle_count),
-        shift_nozzles(id, nozzle_number, staff_id, product_id, opening_reading, closing_reading, liters_sold, rate, amount, payment_mode, payment_meta, account_id,
+        shift_nozzles(id, nozzle_number, machine_id, staff_id, product_id, opening_reading, closing_reading, liters_sold, rate, amount, payment_mode, payment_meta, account_id,
+          machines(id, name, machine_no),
           staff(id, name, role),
           products(id, name, unit, selling_rate)
         )
@@ -197,8 +197,12 @@ export default function ShiftsPage() {
 // ─── Shift Card ──────────────────────────────────────────────────────────────
 
 function ShiftCard({ shift, isClosing, closeData, setNozzleClose, closeErr, saving, error, onClose, onSubmit, onCancel }) {
-  const isOpen   = shift.status === 'open';
-  const nozzles  = (shift.shift_nozzles || []).sort((a, b) => a.nozzle_number - b.nozzle_number);
+  const isOpen  = shift.status === 'open';
+  const nozzles = (shift.shift_nozzles || []).sort((a, b) => a.nozzle_number - b.nozzle_number);
+  // Derive unique machines from nozzles
+  const machineMap = {};
+  for (const nz of nozzles) { if (nz.machine_id && !machineMap[nz.machine_id]) machineMap[nz.machine_id] = nz.machines; }
+  const machineList = Object.values(machineMap);
 
   return (
     <div style={{ background: 'white', borderRadius: '12px', border: `1px solid ${isOpen ? '#BBF7D0' : '#E2E8F0'}`, overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
@@ -211,8 +215,8 @@ function ShiftCard({ shift, isClosing, closeData, setNozzleClose, closeErr, savi
           </div>
           <div>
             <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0F172A' }}>
-              {shift.machines?.name}
-              <span style={{ fontWeight: 400, color: '#94A3B8', marginLeft: '6px', fontSize: '12px' }}>#{shift.machines?.machine_no}</span>
+              {machineList.map(m => m?.name).filter(Boolean).join(' · ') || 'Shift'}
+              {machineList.length === 1 && <span style={{ fontWeight: 400, color: '#94A3B8', marginLeft: '6px', fontSize: '12px' }}>#{machineList[0]?.machine_no}</span>}
               {shift.shift_duration && (
                 <span style={{ marginLeft: '8px', padding: '1px 7px', borderRadius: '999px', background: '#EFF6FF', color: '#2563EB', fontWeight: 600, fontSize: '10.5px' }}>
                   {shift.shift_duration}h
@@ -249,6 +253,7 @@ function ShiftCard({ shift, isClosing, closeData, setNozzleClose, closeErr, savi
             <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #2563EB, #1D4ED8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 800, fontSize: '11px', flexShrink: 0 }}>
               {nz.nozzle_number}
             </div>
+            {machineList.length > 1 && <span style={{ fontSize: '10px', fontWeight: 700, color: '#2563EB', background: '#EFF6FF', padding: '1px 6px', borderRadius: '4px' }}>{nz.machines?.name}</span>}
             <span style={{ fontSize: '12px', fontWeight: 600, color: '#1E293B', minWidth: '100px' }}>{nz.staff?.name || '—'}</span>
             <span style={{ fontSize: '11.5px', color: '#64748B', background: '#E2E8F0', padding: '1px 8px', borderRadius: '5px' }}>{nz.products?.name || '—'}</span>
             <span style={{ fontSize: '11.5px', color: '#475569' }}>Open: <strong>{fmt(nz.opening_reading)}</strong></span>

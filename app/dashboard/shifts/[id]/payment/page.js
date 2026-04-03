@@ -55,10 +55,10 @@ export default function ShiftPaymentPage() {
       .from('shifts')
       .select(`
         id, shift_date, shift_duration, status, opened_at,
-        machines(id, name, machine_no),
         shift_nozzles(
-          id, nozzle_number, staff_id, product_id,
+          id, nozzle_number, machine_id, staff_id, product_id,
           opening_reading, closing_reading, liters_sold, rate, amount,
+          machines(id, name, machine_no),
           staff(id, name, role),
           products(id, name, unit, selling_rate)
         )
@@ -163,7 +163,9 @@ export default function ShiftPaymentPage() {
             rate:         nz.rate,
             total_amount: nz.amount,
             payment_mode: primaryMode,
-            note:         `Shift — ${shift.machines?.name} N${nz.nozzle_number} — ${nz.staff?.name}`,
+            staff_id:     sid,
+            shift_id:     shift.id,
+            note:         `Shift — ${nz.machines?.name || ''} N${nz.nozzle_number} — ${nz.staff?.name}`,
           }).select('id').single();
 
           if (saleErr || !saleData) {
