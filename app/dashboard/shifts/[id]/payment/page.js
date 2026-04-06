@@ -163,8 +163,6 @@ export default function ShiftPaymentPage() {
             rate:         nz.rate,
             total_amount: nz.amount,
             payment_mode: primaryMode,
-            staff_id:     sid,
-            shift_id:     shift.id,
             note:         `Shift — ${nz.machines?.name || ''} N${nz.nozzle_number} — ${nz.staff?.name}`,
           }).select('id').single();
 
