@@ -116,14 +116,14 @@ export default function CompanyInfoPage() {
           boxShadow: '0 8px 24px rgba(15,31,92,0.3)',
           position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(245,158,11,0.08)', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(37,99,235,0.08)', pointerEvents: 'none' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 16px rgba(245,158,11,0.4)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'linear-gradient(135deg, #2563EB, #1D4ED8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 16px rgba(37,99,235,0.4)' }}>
               <IconFuel />
             </div>
             <div>
               <p style={{ color: '#93c5fd', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 4px' }}>Your Pump Code</p>
-              <p style={{ color: '#fcd34d', fontSize: '26px', fontWeight: 800, letterSpacing: '0.2em', margin: 0 }}>{company.pumpCode}</p>
+              <p style={{ color: 'white', fontSize: '26px', fontWeight: 800, letterSpacing: '0.2em', margin: 0 }}>{company.pumpCode}</p>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>

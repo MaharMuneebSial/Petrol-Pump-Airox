@@ -41,16 +41,16 @@ const menuItems = [
     ],
   },
   {
-    label: 'Sales', Icon: IconTrend, perm: 'sales_add',
+    label: 'Sales', Icon: IconTrend, perm: 'sales_list',
     children: [
-      { label: 'Add Sale',   href: '/dashboard/sales/add' },
-      { label: 'Sales List', href: '/dashboard/sales', perm: 'sales_list' },
+      { label: 'Counter Sale', href: '/dashboard/sales/add',  perm: 'sales_add'  },
+      { label: 'Sales List',   href: '/dashboard/sales',      perm: 'sales_list' },
     ],
   },
   {
     label: 'Shifts', Icon: IconGauge, perm: 'shifts',
     children: [
-      { label: 'Open Shift',  href: '/dashboard/shifts/open' },
+      { label: 'Setup Shift', href: '/dashboard/shifts/open' },
       { label: 'Shift List',  href: '/dashboard/shifts' },
     ],
   },

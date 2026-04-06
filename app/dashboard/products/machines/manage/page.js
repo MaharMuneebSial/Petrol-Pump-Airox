@@ -48,8 +48,8 @@ function ActionBtn({ onClick, icon, bg, color, border, hoverBg, title }) {
 }
 
 // ── View Modal ─────────────────────────────────────────────────────────────────
-function ViewModal({ machine, productName, onClose }) {
-  const nozzles = parseInt(machine.nozzleCount || 0);
+function ViewModal({ machine, productName, nozzles: nozzleList, onClose }) {
+  const nozzleCount = parseInt(machine.nozzleCount || 0);
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 50,
@@ -119,19 +119,32 @@ function ViewModal({ machine, productName, onClose }) {
           <div style={{ padding: '9px 0' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
               <span style={{ fontSize: '11.5px', color: '#94A3B8', fontWeight: 500 }}>Nozzles</span>
-              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1D4ED8' }}>{nozzles} total</span>
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#1D4ED8' }}>{nozzleCount} total</span>
             </div>
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {[...Array(nozzles)].map((_, i) => (
-                <div key={i} style={{
-                  width: '32px', height: '32px', borderRadius: '8px',
-                  background: '#EFF6FF', border: '1.5px solid #BFDBFE',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', fontWeight: 800, color: '#1D4ED8',
-                }}>
-                  {i + 1}
-                </div>
-              ))}
+              {nozzleList && nozzleList.length > 0
+                ? nozzleList.map((nz) => (
+                    <div key={nz.nozzle_number} style={{
+                      height: '28px', padding: '0 10px', borderRadius: '999px',
+                      background: '#EFF6FF', border: '1.5px solid #BFDBFE',
+                      display: 'inline-flex', alignItems: 'center', gap: '5px',
+                      fontSize: '11px', fontWeight: 700, color: '#1D4ED8',
+                    }}>
+                      <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#93C5FD', flexShrink: 0 }} />
+                      {nz.nozzle_name || `Nozzle ${nz.nozzle_number}`}
+                    </div>
+                  ))
+                : [...Array(nozzleCount)].map((_, i) => (
+                    <div key={i} style={{
+                      width: '32px', height: '32px', borderRadius: '8px',
+                      background: '#EFF6FF', border: '1.5px solid #BFDBFE',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '11px', fontWeight: 800, color: '#1D4ED8',
+                    }}>
+                      {i + 1}
+                    </div>
+                  ))
+              }
             </div>
           </div>
         </div>
@@ -391,10 +404,10 @@ export default function ManageMachinesPage() {
         </div>
         <div style={{ background: '#F1F5F9' }} />
         <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#FFFBEB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#D97706', flexShrink: 0 }}><IconHash /></div>
+          <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2563EB', flexShrink: 0 }}><IconHash /></div>
           <div>
             <div style={{ fontSize: '9.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '2px' }}>Fuel Types</div>
-            <div style={{ fontSize: '17px', fontWeight: 800, color: '#D97706', lineHeight: 1 }}>{new Set(machines.map(m => m.productId)).size}</div>
+            <div style={{ fontSize: '17px', fontWeight: 800, color: '#2563EB', lineHeight: 1 }}>{new Set(machines.map(m => m.productId)).size}</div>
           </div>
         </div>
       </div>
@@ -527,7 +540,7 @@ export default function ManageMachinesPage() {
 
       {/* ── View Modal ── */}
       {viewMachine && (
-        <ViewModal machine={viewMachine} productName={getProductName(viewMachine.productId)} onClose={() => setViewMachine(null)} />
+        <ViewModal machine={viewMachine} productName={getProductName(viewMachine.productId)} nozzles={viewMachine.nozzles || []} onClose={() => setViewMachine(null)} />
       )}
 
       {/* ── Edit Modal ── */}

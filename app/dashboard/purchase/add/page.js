@@ -318,7 +318,7 @@ export default function AddPurchasePage() {
                   error={errors.productId}
                 />
                 {products.length === 0 && (
-                  <p style={{ fontSize: '11px', color: '#f59e0b', marginTop: '4px' }}>
+                  <p style={{ fontSize: '11px', color: '#475569', marginTop: '4px' }}>
                     No products. <Link href="/dashboard/products/add" style={{ color: '#0f1f5c' }}>Add →</Link>
                   </p>
                 )}
@@ -389,7 +389,7 @@ export default function AddPurchasePage() {
                   <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     Payment Mode
                     {form.supplierId && form.paymentMode === 'cash' && (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: '#f59e0b', fontWeight: 500 }}>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', color: '#475569', fontWeight: 500 }}>
                         <IconInfo /> Confirm cash?
                       </span>
                     )}
@@ -429,7 +429,7 @@ export default function AddPurchasePage() {
           }}>
             <div>
               <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', margin: '0 0 2px', color: hasTotal ? '#93c5fd' : '#94a3b8' }}>Total Amount</p>
-              <p style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 2px', letterSpacing: '-0.02em', color: hasTotal ? '#fcd34d' : '#cbd5e1' }}>
+              <p style={{ fontSize: '28px', fontWeight: 800, margin: '0 0 2px', letterSpacing: '-0.02em', color: hasTotal ? '#93c5fd' : '#cbd5e1' }}>
                 Rs. {fmt(totalVal)}
               </p>
               <p style={{ fontSize: '11px', margin: 0, color: hasTotal ? '#93c5fd' : '#94a3b8' }}>

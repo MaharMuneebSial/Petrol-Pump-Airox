@@ -148,12 +148,12 @@ export default function ChangePasswordPage() {
           />
 
           {/* Security tips */}
-          <div style={{ padding: '14px 16px', borderRadius: '12px', background: 'linear-gradient(135deg, #fffbeb, #fef3c7)', border: '1px solid #fde68a' }}>
+          <div style={{ padding: '14px 16px', borderRadius: '12px', background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
               <IconShield />
-              <p style={{ fontSize: '13px', fontWeight: 700, color: '#92400e', margin: 0 }}>Security Tips</p>
+              <p style={{ fontSize: '13px', fontWeight: 700, color: '#1D4ED8', margin: 0 }}>Security Tips</p>
             </div>
-            <ul style={{ fontSize: '12px', color: '#92400e', margin: 0, paddingLeft: '16px', lineHeight: 1.7 }}>
+            <ul style={{ fontSize: '12px', color: '#1D4ED8', margin: 0, paddingLeft: '16px', lineHeight: 1.7 }}>
               <li>Use at least 8 characters for stronger security</li>
               <li>Mix uppercase, lowercase letters and numbers</li>
               <li>Never share your password with anyone</li>

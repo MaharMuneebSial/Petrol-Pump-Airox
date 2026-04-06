@@ -42,7 +42,7 @@ export default function DatewiseProductSummaryPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">📦 Datewise Product Summary</h1>
+          <h1 className="ps-page-title">Datewise Product Summary</h1>
           <p className="ps-page-subtitle">Product sales breakdown by date</p>
         </div>
       </div>

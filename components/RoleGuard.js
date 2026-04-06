@@ -13,6 +13,7 @@ const PATH_PERM = [
   { prefix: '/dashboard/activity',  perm: null         }, // owner only
   { prefix: '/dashboard/sales/add', perm: 'sales_add'  },
   { prefix: '/dashboard/sales',     perm: 'sales_list' },
+  { prefix: '/dashboard/shifts',    perm: 'shifts'     },
   { prefix: '/dashboard/purchase',  perm: 'purchase'   },
   { prefix: '/dashboard/accounts',  perm: 'accounts'   },
   { prefix: '/dashboard/products',  perm: 'products'   },

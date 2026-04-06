@@ -7,8 +7,8 @@ import ExportToolbar from '../../../../components/ExportToolbar';
 
 const fmt = (n) => new Intl.NumberFormat('en-PK', { minimumFractionDigits: 2 }).format(n || 0);
 
-const typeColors = { Customer: '#2563EB', Supplier: '#D97706', Employee: '#059669', Other: '#7C3AED' };
-const typeBg    = { Customer: '#EFF6FF', Supplier: '#FFFBEB', Employee: '#F0FDF4', Other: '#F5F3FF' };
+const typeColors = { Customer: '#2563EB', Supplier: '#475569', Employee: '#059669', Other: '#7C3AED' };
+const typeBg    = { Customer: '#EFF6FF', Supplier: '#F8FAFC', Employee: '#F0FDF4', Other: '#F5F3FF' };
 
 /* ── Account Selector (shown when no ?id) ── */
 function AccountSelector({ accounts, onSelect }) {
@@ -249,12 +249,12 @@ function LedgerView({ account, entries }) {
           </tr>
         </thead>
         <tbody>
-          <tr style={{ background: '#FFFBEB' }}>
+          <tr style={{ background: '#F8FAFC' }}>
             <td style={{ color: '#94A3B8', fontSize: '12px' }}>—</td>
-            <td style={{ color: '#92400E', fontSize: '12px' }}>Opening</td>
-            <td><span className="badge badge-warning">Opening Balance</span></td>
-            <td style={{ color: '#92400E', fontSize: '12px' }}>Opening balance brought forward</td>
-            <td style={{ textAlign: 'right', color: '#B45309', fontSize: '12px', fontWeight: 600 }}>Rs. {fmt(account.openingBalance)}</td>
+            <td style={{ color: '#475569', fontSize: '12px' }}>Opening</td>
+            <td><span className="badge badge-gray">Opening Balance</span></td>
+            <td style={{ color: '#475569', fontSize: '12px' }}>Opening balance brought forward</td>
+            <td style={{ textAlign: 'right', color: '#1E293B', fontSize: '12px', fontWeight: 600 }}>Rs. {fmt(account.openingBalance)}</td>
             <td style={{ textAlign: 'right', color: '#94A3B8', fontSize: '12px' }}>—</td>
             <td style={{ textAlign: 'right', color: '#1E293B', fontSize: '12px', fontWeight: 700 }}>Rs. {fmt(account.openingBalance)}</td>
           </tr>

@@ -63,11 +63,11 @@ export default function ExpensesPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">📋 Expenses Report</h1>
+          <h1 className="ps-page-title">Expenses Report</h1>
           <p className="ps-page-subtitle">Track and manage all station expenses</p>
         </div>
         <button onClick={() => setShowForm(p => !p)} className="btn-primary px-4 py-2 text-sm">
-          {showForm ? '✕ Cancel' : '+ Add Expense'}
+          {showForm ? 'Cancel' : '+ Add Expense'}
         </button>
       </div>
 
@@ -100,7 +100,7 @@ export default function ExpensesPage() {
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={loading} className="btn-primary px-6 py-2.5 text-sm" style={{ opacity: loading ? 0.8 : 1 }}>
-                {loading ? '⏳ Saving...' : '💾 Save Expense'}
+                {loading ? 'Saving...' : 'Save Expense'}
               </button>
               <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2.5 text-sm rounded-lg font-medium" style={{ background: '#f1f5f9', color: '#374151', border: 'none', cursor: 'pointer' }}>Cancel</button>
             </div>
@@ -155,7 +155,6 @@ export default function ExpensesPage() {
             <tbody>
               {filtered.length === 0 ? (
                 <tr><td colSpan={6} className="py-12 text-center" style={{ color: '#94a3b8' }}>
-                  <p style={{ fontSize: '32px' }}>📋</p>
                   <p className="mt-2 font-medium">No expenses recorded</p>
                 </td></tr>
               ) : filtered.map((e, i) => (

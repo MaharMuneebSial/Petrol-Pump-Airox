@@ -25,20 +25,19 @@ export default function InvestmentSummaryPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">💼 Investment Summary</h1>
+          <h1 className="ps-page-title">Investment Summary</h1>
           <p className="ps-page-subtitle">Capital and asset overview</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Stock Value', value: `Rs. ${fmt(data.stockValue)}`, color: '#7c3aed', icon: '🛢️' },
-          { label: 'Total Purchased', value: `Rs. ${fmt(data.totalPurchased)}`, color: '#ef4444', icon: '🛒' },
-          { label: 'Receivable', value: `Rs. ${fmt(data.totalReceivable)}`, color: '#10b981', icon: '📥' },
-          { label: 'Total Investment', value: `Rs. ${fmt(data.totalInvestment)}`, color: '#0f1f5c', icon: '💼' },
+          { label: 'Stock Value', value: `Rs. ${fmt(data.stockValue)}`, color: '#7c3aed' },
+          { label: 'Total Purchased', value: `Rs. ${fmt(data.totalPurchased)}`, color: '#ef4444' },
+          { label: 'Receivable', value: `Rs. ${fmt(data.totalReceivable)}`, color: '#10b981' },
+          { label: 'Total Investment', value: `Rs. ${fmt(data.totalInvestment)}`, color: '#0f1f5c' },
         ].map(s => (
           <div key={s.label} className="ps-card p-4">
-            <p className="text-2xl mb-1">{s.icon}</p>
             <p className="text-xs" style={{ color: '#94a3b8' }}>{s.label}</p>
             <p className="text-lg font-bold mt-0.5" style={{ color: s.color }}>{s.value}</p>
           </div>

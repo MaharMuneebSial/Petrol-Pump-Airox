@@ -57,38 +57,28 @@ const NOZZLE_OPTIONS = [1, 2, 3, 4, 6, 8];
 export default function AddMachinePage() {
   const router = useRouter();
   const [products,  setProducts]  = useState([]);
-  const [staffList, setStaffList] = useState([]);
   const [form, setForm] = useState({ name: '', machineNo: '', nozzleCount: '2' });
-  // nozzleConfig: { n: { staff_id, product_id, initial_reading } }
-  const [nozzleConfig, setNozzleConfig] = useState({ 1: { staff_id: '', product_id: '', initial_reading: '' }, 2: { staff_id: '', product_id: '', initial_reading: '' } });
+  // nozzleConfig: { n: { nozzle_name, product_id, initial_reading } }
+  const [nozzleConfig, setNozzleConfig] = useState({ 1: { nozzle_name: 'Nozzle 1', product_id: '', initial_reading: '' }, 2: { nozzle_name: 'Nozzle 2', product_id: '', initial_reading: '' } });
   const [errors, setErrors]   = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const productRef = useRef(null);
 
-  useEffect(() => {
-    const company = getCompany();
-    Promise.all([
-      getProducts(),
-      company ? supabase.from('staff').select('id, name, role').eq('company_id', company.id).eq('is_active', true) : Promise.resolve({ data: [] }),
-    ]).then(([prods, sRes]) => {
-      setProducts(prods || []);
-      setStaffList(sRes.data || []);
-    });
-  }, []);
+  useEffect(() => { getProducts().then(setProducts); }, []);
 
   // Reset nozzle config when nozzle count changes
   useEffect(() => {
     const n = parseInt(form.nozzleCount) || 0;
     setNozzleConfig(prev => {
       const r = {};
-      for (let i = 1; i <= n; i++) r[i] = prev[i] || { staff_id: '', product_id: '', initial_reading: '' };
+      for (let i = 1; i <= n; i++) r[i] = prev[i] || { nozzle_name: `Nozzle ${i}`, product_id: '', initial_reading: '' };
       return r;
     });
     setErrors(p => {
       const next = { ...p };
-      for (let i = 1; i <= 8; i++) { delete next[`nozzle_${i}_reading`]; delete next[`nozzle_${i}_staff`]; delete next[`nozzle_${i}_product`]; }
+      for (let i = 1; i <= 8; i++) { delete next[`nozzle_${i}_reading`]; delete next[`nozzle_${i}_product`]; }
       return next;
     });
   }, [form.nozzleCount]);
@@ -101,7 +91,6 @@ export default function AddMachinePage() {
     if (!form.nozzleCount || nc < 1) errs.nozzleCount = 'Select nozzle count';
     for (let i = 1; i <= nc; i++) {
       const c = nozzleConfig[i] || {};
-      if (!c.staff_id)    errs[`nozzle_${i}_staff`]   = 'Required';
       if (!c.product_id)  errs[`nozzle_${i}_product`] = 'Required';
       const v = c.initial_reading;
       if (v === '' || v === undefined) errs[`nozzle_${i}_reading`] = 'Required';
@@ -297,12 +286,12 @@ export default function AddMachinePage() {
                   <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                     Nozzle Configuration
                   </span>
-                  <span style={{ fontSize: '10.5px', color: '#94A3B8' }}>— staff, product & initial reading per nozzle</span>
+                  <span style={{ fontSize: '10.5px', color: '#94A3B8' }}>— name, product & initial reading per nozzle</span>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {Array.from({ length: parseInt(form.nozzleCount) }, (_, i) => i + 1).map(n => {
                     const c = nozzleConfig[n] || {};
-                    const hasErr = errors[`nozzle_${n}_staff`] || errors[`nozzle_${n}_product`] || errors[`nozzle_${n}_reading`];
+                    const hasErr = errors[`nozzle_${n}_product`] || errors[`nozzle_${n}_reading`];
                     return (
                       <div key={n} style={{ background: '#F8FAFC', border: `1.5px solid ${hasErr ? '#FCA5A5' : '#E2E8F0'}`, borderRadius: '10px', padding: '12px 14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
@@ -310,15 +299,15 @@ export default function AddMachinePage() {
                           <span style={{ fontWeight: 700, fontSize: '12.5px', color: '#0F172A' }}>Nozzle {n}</span>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                          {/* Staff */}
+                          {/* Nozzle Name */}
                           <div>
-                            <label className="ps-label">Default Staff <span style={{ color: '#DC2626' }}>*</span></label>
-                            <select value={c.staff_id || ''} onChange={e => { setNozzleConfig(p => ({ ...p, [n]: { ...p[n], staff_id: e.target.value } })); setErrors(p => ({ ...p, [`nozzle_${n}_staff`]: '' })); }}
-                              className="ps-input" style={{ cursor: 'pointer', color: c.staff_id ? '#1E293B' : '#94A3B8', borderColor: errors[`nozzle_${n}_staff`] ? '#FCA5A5' : undefined }}>
-                              <option value="">Select staff…</option>
-                              {staffList.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                            </select>
-                            {errors[`nozzle_${n}_staff`] && <p style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10.5px', color: '#DC2626', marginTop: '4px' }}><IconAlert /> {errors[`nozzle_${n}_staff`]}</p>}
+                            <label className="ps-label">Nozzle Name</label>
+                            <input
+                              className="ps-input"
+                              placeholder={`Nozzle ${n}`}
+                              value={c.nozzle_name ?? `Nozzle ${n}`}
+                              onChange={e => setNozzleConfig(p => ({ ...p, [n]: { ...p[n], nozzle_name: e.target.value } }))}
+                            />
                           </div>
                           {/* Product */}
                           <div>

@@ -34,7 +34,7 @@ const PAYMENT_FILTER = [
   { value: 'cash',      label: 'Cash',      color: '#059669', bg: '#dcfce7' },
   { value: 'credit',    label: 'Credit',    color: '#dc2626', bg: '#fee2e2' },
   { value: 'card',      label: 'Card',      color: '#2563eb', bg: '#dbeafe' },
-  { value: 'online',    label: 'Online',    color: '#d97706', bg: '#fef3c7' },
+  { value: 'online',    label: 'Online',    color: '#0891B2', bg: '#ECFEFF' },
   { value: 'jazzcash',  label: 'JazzCash',  color: '#be185d', bg: '#fce7f3' },
   { value: 'easypaisa', label: 'EasyPaisa', color: '#15803d', bg: '#dcfce7' },
   { value: 'bank',      label: 'Bank',      color: '#1d4ed8', bg: '#dbeafe' },
@@ -45,7 +45,7 @@ const MODE_CONFIG = {
   cash:      { label: 'Cash',      color: '#059669', bg: '#f0fdf4', border: '#6ee7b7', Icon: IconCash    },
   credit:    { label: 'Credit',    color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', Icon: IconCredit  },
   card:      { label: 'Card',      color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', Icon: IconCredit  },
-  online:    { label: 'Online',    color: '#d97706', bg: '#fffbeb', border: '#fcd34d', Icon: IconCash    },
+  online:    { label: 'Online',    color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC', Icon: IconCash    },
   jazzcash:  { label: 'JazzCash',  color: '#be185d', bg: '#fdf2f8', border: '#f9a8d4', Icon: IconPhone   },
   easypaisa: { label: 'EasyPaisa', color: '#15803d', bg: '#f0fdf4', border: '#86efac', Icon: IconPhone   },
   bank:      { label: 'Bank',      color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd', Icon: IconBank    },
@@ -99,7 +99,7 @@ function ViewModal({ sale, productName, customerName, payments, onClose }) {
           </div>
           <div style={{ textAlign: 'right' }}>
             <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</p>
-            <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace' }}>Rs. {fmt(sale.total)}</p>
+            <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#93C5FD', fontFamily: 'monospace' }}>Rs. {fmt(sale.total)}</p>
           </div>
         </div>
 
@@ -128,9 +128,9 @@ function ViewModal({ sale, productName, customerName, payments, onClose }) {
                   <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '9px 12px', borderBottom: i < payments.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <PayBadge mode={p.mode} />
-                      {p.meta?.phone     && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>📱 {p.meta.phone}{p.meta.txnId ? ` · TXN: ${p.meta.txnId}` : ''}</span>}
-                      {p.meta?.bankName  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>🏦 {p.meta.bankName} · {p.meta.accountNo}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
-                      {p.meta?.lastFour  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>💳 ****{p.meta.lastFour}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
+                      {p.meta?.phone     && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Ph: {p.meta.phone}{p.meta.txnId ? ` · TXN: ${p.meta.txnId}` : ''}</span>}
+                      {p.meta?.bankName  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Bank: {p.meta.bankName} · {p.meta.accountNo}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
+                      {p.meta?.lastFour  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Card: ****{p.meta.lastFour}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
                     </div>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: pc.color || '#0D1B3E', fontFamily: 'monospace', flexShrink: 0, marginLeft: '12px' }}>Rs. {fmt(p.amount)}</span>
                   </div>
@@ -163,7 +163,7 @@ const SIMPLE_MODES = [
   { value: 'cash',      label: 'Cash',      solid: '#059669', bg: '#f0fdf4', border: '#6ee7b7' },
   { value: 'credit',    label: 'Credit',    solid: '#dc2626', bg: '#fef2f2', border: '#fca5a5' },
   { value: 'card',      label: 'Card',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
-  { value: 'online',    label: 'Online',    solid: '#d97706', bg: '#fffbeb', border: '#fcd34d' },
+  { value: 'online',    label: 'Online',    solid: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
   { value: 'jazzcash',  label: 'JazzCash',  solid: '#db2777', bg: '#fdf2f8', border: '#f9a8d4' },
   { value: 'easypaisa', label: 'EasyPaisa', solid: '#16a34a', bg: '#f0fdf4', border: '#86efac' },
   { value: 'bank',      label: 'Bank',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
@@ -250,8 +250,8 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
         <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
 
           {sale.paymentMode === 'split' && (
-            <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#92400e' }}>
-              ⚠ This sale used split payment. You can change it to a single mode below, but split breakdown will be kept in records.
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#1D4ED8' }}>
+              Note: This sale used split payment. You can change it to a single mode below, but split breakdown will be kept in records.
             </div>
           )}
 
@@ -279,7 +279,7 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
           {/* Total */}
           <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Amount</span>
-            <span style={{ fontSize: '18px', fontWeight: 800, color: total > 0 ? '#F0A500' : 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}>Rs. {fmt(total)}</span>
+            <span style={{ fontSize: '18px', fontWeight: 800, color: total > 0 ? '#93C5FD' : 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}>Rs. {fmt(total)}</span>
           </div>
 
           {/* Payment Mode */}

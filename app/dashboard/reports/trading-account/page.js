@@ -23,10 +23,10 @@ export default function TradingAccountPage() {
   return (
     <div className="space-y-5 max-w-2xl">
       <div className="ps-page-header">
-        <div><h1 className="ps-page-title">📈 Trading Account</h1><p className="ps-page-subtitle">Gross profit/loss calculation</p></div>
+        <div><h1 className="ps-page-title">Trading Account</h1><p className="ps-page-subtitle">Gross profit/loss calculation</p></div>
       </div>
       <div className="ps-card overflow-hidden">
-        <div className="px-5 py-3" style={{ background: '#0f1f5c', borderBottom: '3px solid #f59e0b' }}>
+        <div className="px-5 py-3" style={{ background: '#0f1f5c', borderBottom: '3px solid #2563EB' }}>
           <h2 className="font-bold text-white">Trading Account Statement</h2>
         </div>
         <div className="grid grid-cols-2 divide-x" style={{ divideColor: '#e2e8f0' }}>
@@ -50,7 +50,7 @@ export default function TradingAccountPage() {
         </div>
         <div className="mx-5 mb-5 p-4 rounded-xl text-center" style={{ background: data.grossProfit >= 0 ? '#f0fdf4' : '#fef2f2' }}>
           <p className="text-sm font-semibold" style={{ color: data.grossProfit >= 0 ? '#065f46' : '#991b1b' }}>
-            {data.grossProfit >= 0 ? '📈 Gross Profit' : '📉 Gross Loss'}
+            {data.grossProfit >= 0 ? 'Gross Profit' : 'Gross Loss'}
           </p>
           <p className="text-3xl font-bold mt-1" style={{ color: data.grossProfit >= 0 ? '#10b981' : '#ef4444' }}>
             Rs. {fmt(Math.abs(data.grossProfit))}

@@ -3,7 +3,14 @@
     "allow": [
       "Bash(git clone:*)",
       "Bash(gh auth:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(xargs -I {} sh -c 'echo \"=== {} ===\" && head -50 {}')",
+      "Read(//c/Users/Administrator/Desktop/petrolpump/petrolpump/**)",
+      "Bash(node node_modules/next/dist/bin/next dev --help)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Administrator\\Desktop\\petrolpump\\petrolpump\\petrolmanagementsystem\\app\\dashboard\\shifts",
+      "c:\\Users\\Administrator\\Desktop\\petrolpump\\petrolpump\\petrolmanagementsystem\\app\\dashboard\\shifts\\[id]"
     ]
   }
 }

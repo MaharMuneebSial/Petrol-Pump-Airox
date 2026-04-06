@@ -42,7 +42,7 @@ export default function ProfitOnSalesPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">💹 Profit on Sales</h1>
+          <h1 className="ps-page-title">Profit on Sales</h1>
           <p className="ps-page-subtitle">Product-wise profitability analysis</p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function ProfitOnSalesPage() {
                   <td className="text-right text-sm font-semibold" style={{ color: '#10b981' }}>Rs. {fmt(r.revenue)}</td>
                   <td className="text-right text-sm" style={{ color: '#ef4444' }}>Rs. {fmt(r.cost)}</td>
                   <td className="text-right text-sm font-bold" style={{ color: r.profit >= 0 ? '#10b981' : '#ef4444' }}>Rs. {fmt(r.profit)}</td>
-                  <td className="text-right text-sm font-semibold" style={{ color: r.margin >= 10 ? '#10b981' : '#f59e0b' }}>{r.margin.toFixed(1)}%</td>
+                  <td className="text-right text-sm font-semibold" style={{ color: r.margin >= 10 ? '#10b981' : '#DC2626' }}>{r.margin.toFixed(1)}%</td>
                 </tr>
               ))}
             </tbody>
@@ -91,9 +91,9 @@ export default function ProfitOnSalesPage() {
         </div>
       </div>
 
-      <div className="p-4 rounded-lg" style={{ background: '#fffbeb', border: '1px solid #fde68a' }}>
-        <p className="text-xs font-semibold" style={{ color: '#92400e' }}>Note</p>
-        <p className="text-xs mt-1" style={{ color: '#92400e' }}>Profit estimates are based on average purchase costs. Actual profit may vary.</p>
+      <div className="p-4 rounded-lg" style={{ background: '#EFF6FF', border: '1px solid #BFDBFE' }}>
+        <p className="text-xs font-semibold" style={{ color: '#1D4ED8' }}>Note</p>
+        <p className="text-xs mt-1" style={{ color: '#1D4ED8' }}>Profit estimates are based on average purchase costs. Actual profit may vary.</p>
       </div>
     </div>
   );

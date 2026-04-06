@@ -28,7 +28,7 @@ const UNIT_OPTIONS = [
 // ── Unit badge styles ──────────────────────────────────────────────────────────
 const UNIT_STYLE = {
   'Ltr':         { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
-  'Kg':          { bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
+  'Kg':          { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Cubic Meter': { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Unit':        { bg: '#F5F3FF', color: '#7C3AED', border: '#DDD6FE' },
 };
@@ -284,7 +284,7 @@ export default function ManageProductsPage() {
   const stockStatus = (stock) => {
     const s = parseFloat(stock || 0);
     if (s === 0) return { label: 'Out of Stock', bg: '#FEF2F2', color: '#B91C1C', border: '#FECACA', dot: '#DC2626' };
-    if (s < 500)  return { label: 'Low Stock',    bg: '#FFFBEB', color: '#92400E', border: '#FDE68A', dot: '#D97706' };
+    if (s < 500)  return { label: 'Low Stock',    bg: '#FEF2F2', color: '#B91C1C', border: '#FECACA', dot: '#DC2626' };
     return               { label: 'In Stock',      bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0', dot: '#059669' };
   };
 
@@ -359,9 +359,9 @@ export default function ManageProductsPage() {
         <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
             width: '32px', height: '32px', borderRadius: '8px',
-            background: lowCount > 0 ? '#FFFBEB' : '#F0FDF4',
+            background: lowCount > 0 ? '#FEF2F2' : '#F0FDF4',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: lowCount > 0 ? '#D97706' : '#059669', flexShrink: 0,
+            color: lowCount > 0 ? '#DC2626' : '#059669', flexShrink: 0,
           }}>
             <IconWarning />
           </div>
@@ -370,7 +370,7 @@ export default function ManageProductsPage() {
               Low Stock Items
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontSize: '17px', fontWeight: 800, color: lowCount > 0 ? '#D97706' : '#059669', lineHeight: 1 }}>
+              <span style={{ fontSize: '17px', fontWeight: 800, color: lowCount > 0 ? '#DC2626' : '#059669', lineHeight: 1 }}>
                 {lowCount}
               </span>
               {outCount > 0 && (
@@ -530,7 +530,7 @@ export default function ManageProductsPage() {
                       <span style={{
                         fontWeight: 700, fontSize: '12.5px',
                         color: parseFloat(p.stock || 0) === 0 ? '#DC2626'
-                          : parseFloat(p.stock || 0) < 500 ? '#D97706' : '#059669',
+                          : parseFloat(p.stock || 0) < 500 ? '#DC2626' : '#059669',
                       }}>
                         {fmt(p.stock)}
                       </span>

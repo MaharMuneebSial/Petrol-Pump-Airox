@@ -109,7 +109,7 @@ export default function AccountsPage() {
   const stats = [
     { label: 'Total Accounts', value: accounts.length,                                    accent: '#0D1B3E', iconBg: '#EEF2F7' },
     { label: 'Customers',      value: accounts.filter(a => a.type === 'Customer').length, accent: '#2563EB', iconBg: '#EFF6FF' },
-    { label: 'Suppliers',      value: accounts.filter(a => a.type === 'Supplier').length, accent: '#D97706', iconBg: '#FFFBEB' },
+    { label: 'Suppliers',      value: accounts.filter(a => a.type === 'Supplier').length, accent: '#475569', iconBg: '#F8FAFC' },
     { label: 'Employees',      value: accounts.filter(a => a.type === 'Employee').length, accent: '#059669', iconBg: '#F0FDF4' },
   ];
 
