@@ -154,7 +154,7 @@ export default function Header({ onToggleSidebar }) {
                   <div style={{
                     width: '34px', height: '34px', borderRadius: '9px',
                     background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
                     color: 'white', fontWeight: 800, fontSize: '12px',
                     flexShrink: 0,
                   }}>

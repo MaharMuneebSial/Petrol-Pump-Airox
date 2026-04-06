@@ -15,6 +15,7 @@ const IconBox     = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} 
 const IconShield  = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>;
 const IconGauge   = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="18" cy="6" r="3"/></svg>;
 const IconActivity= () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>;
+const IconExpense = () => <svg width={S.w} height={S.h} fill={S.f} stroke={S.s} strokeWidth={S.sw} strokeLinecap={S.lc} strokeLinejoin={S.lj} viewBox={S.v}><path d="M14 2H6a2 2 0 0 0-2 2v16l3-2 2 2 2-2 2 2 2-2 3 2V4a2 2 0 0 0-2-2z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>;
 const IconFuel    = () => <svg width={22} height={22} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M3 22V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M3 11h12"/><path d="M13 6l4 4"/><path d="M17 10v6a2 2 0 0 0 4 0v-4l-2-2"/></svg>;
 const IconChevron = ({ open }) => (
   <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"
@@ -61,6 +62,7 @@ const menuItems = [
       { label: 'Cash Payment',  href: '/dashboard/vouchers?type=payment' },
     ],
   },
+  { label: 'Expenses', Icon: IconExpense, href: '/dashboard/expenses', perm: 'expenses' },
   {
     label: 'Reports', Icon: IconChart, perm: 'reports',
     children: [
