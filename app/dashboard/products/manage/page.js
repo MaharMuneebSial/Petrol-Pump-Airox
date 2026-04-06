@@ -28,7 +28,7 @@ const UNIT_OPTIONS = [
 // ── Unit badge styles ──────────────────────────────────────────────────────────
 const UNIT_STYLE = {
   'Ltr':         { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
-  'Kg':          { bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
+  'Kg':          { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Cubic Meter': { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Unit':        { bg: '#F5F3FF', color: '#7C3AED', border: '#DDD6FE' },
 };
@@ -296,7 +296,7 @@ export default function ManageProductsPage() {
   const stockStatus = (stock) => {
     const s = parseFloat(stock || 0);
     if (s === 0) return { label: 'Out of Stock', bg: '#FEF2F2', color: '#B91C1C', border: '#FECACA', dot: '#DC2626' };
-    if (s < 500)  return { label: 'Low Stock',    bg: '#FFFBEB', color: '#92400E', border: '#FDE68A', dot: '#D97706' };
+    if (s < 500)  return { label: 'Low Stock',    bg: '#FEF2F2', color: '#B91C1C', border: '#FECACA', dot: '#DC2626' };
     return               { label: 'In Stock',      bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0', dot: '#059669' };
   };
 

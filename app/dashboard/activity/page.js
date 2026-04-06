@@ -16,7 +16,7 @@ const ENTITY_CFG = {
   purchase: { label: 'Purchase', bg: '#f5f3ff', color: '#7c3aed' },
   sale:     { label: 'Sale',     bg: '#f0fdf4', color: '#059669' },
   account:  { label: 'Account',  bg: '#eff6ff', color: '#2563eb' },
-  voucher:  { label: 'Voucher',  bg: '#fffbeb', color: '#d97706' },
+  voucher:  { label: 'Voucher',  bg: '#f1f5f9', color: '#475569' },
   product:  { label: 'Product',  bg: '#fdf4ff', color: '#9333ea' },
   staff:    { label: 'Staff',    bg: '#fff1f2', color: '#e11d48' },
 };

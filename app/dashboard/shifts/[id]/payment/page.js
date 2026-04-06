@@ -54,11 +54,11 @@ export default function ShiftPaymentPage() {
     const { data } = await supabase
       .from('shifts')
       .select(`
-        id, shift_date, shift_duration, status, opened_at,
-        machines(id, name, machine_no),
+        id, shift_name, shift_date, shift_duration, status, opened_at,
         shift_nozzles(
-          id, nozzle_number, staff_id, product_id,
+          id, nozzle_number, nozzle_name, machine_id, staff_id, product_id,
           opening_reading, closing_reading, liters_sold, rate, amount,
+          machines(id, name, machine_no),
           staff(id, name, role),
           products(id, name, unit, selling_rate)
         )
@@ -163,7 +163,9 @@ export default function ShiftPaymentPage() {
             rate:         nz.rate,
             total_amount: nz.amount,
             payment_mode: primaryMode,
-            note:         `Shift — ${shift.machines?.name} N${nz.nozzle_number} — ${nz.staff?.name}`,
+            staff_id:     sid,
+            shift_id:     shift.id,
+            note:         `Shift — ${nz.machines?.name || ''} N${nz.nozzle_number} — ${nz.staff?.name}`,
           }).select('id').single();
 
           if (saleErr || !saleData) {
@@ -196,6 +198,17 @@ export default function ShiftPaymentPage() {
             const { error: pyErr } = await supabase.from('sale_payments').insert(payRows);
             if (pyErr) console.warn('sale_payments insert warn:', pyErr.message);
           }
+
+          // Update customer account balance for credit portion
+          if (credit > 0 && pp.account_id) {
+            const creditForThisNozzle = parseFloat((nz.amount * rCredit).toFixed(2));
+            if (creditForThisNozzle > 0) {
+              const { data: accRow } = await supabase.from('accounts').select('current_balance').eq('id', pp.account_id).single();
+              if (accRow) {
+                await supabase.from('accounts').update({ current_balance: parseFloat(accRow.current_balance || 0) + creditForThisNozzle }).eq('id', pp.account_id);
+              }
+            }
+          }
         }
 
         const { error: spErr } = await supabase.from('shift_payments').insert({
@@ -225,6 +238,28 @@ export default function ShiftPaymentPage() {
         setSaveErr(`Failed to close shift: ${shiftErr.message}`);
         setSaving(false);
         return;
+      }
+
+      // Clone shift back to draft so it's ready to activate again next time
+      const { data: nextShift } = await supabase.from('shifts').insert({
+        company_id:     company.id,
+        shift_name:     shift.shift_name || null,
+        shift_duration: shift.shift_duration,
+        shift_date:     new Date().toISOString().split('T')[0],
+        status:         'draft',
+      }).select('id').single();
+
+      if (nextShift) {
+        const nextRows = (shift.shift_nozzles || []).map(nz => ({
+          shift_id:      nextShift.id,
+          company_id:    company.id,
+          machine_id:    nz.machine_id,
+          nozzle_number: nz.nozzle_number,
+          nozzle_name:   nz.nozzle_name,
+          staff_id:      nz.staff_id,
+          product_id:    nz.product_id,
+        }));
+        await supabase.from('shift_nozzles').insert(nextRows);
       }
 
       setSaving(false);
@@ -275,7 +310,7 @@ export default function ShiftPaymentPage() {
               <span>Payment Collection</span>
             </div>
             <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#0D1B3E', margin: 0 }}>
-              {shift.machines?.name} — {shift.shift_date}
+              {shift.shift_name || [...new Set((shift.shift_nozzles || []).map(nz => nz.machines?.name).filter(Boolean))].join(' · ') || 'Shift'} — {shift.shift_date}
               {shift.shift_duration && <span style={{ fontWeight: 400, color: '#64748B', fontSize: '13px', marginLeft: '8px' }}>{shift.shift_duration}h shift</span>}
             </h1>
           </div>

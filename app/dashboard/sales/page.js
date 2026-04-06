@@ -45,7 +45,7 @@ const MODE_CONFIG = {
   cash:      { label: 'Cash',      color: '#059669', bg: '#f0fdf4', border: '#6ee7b7', Icon: IconCash    },
   credit:    { label: 'Credit',    color: '#dc2626', bg: '#fef2f2', border: '#fca5a5', Icon: IconCredit  },
   card:      { label: 'Card',      color: '#2563eb', bg: '#eff6ff', border: '#93c5fd', Icon: IconCredit  },
-  online:    { label: 'Online',    color: '#d97706', bg: '#fffbeb', border: '#fcd34d', Icon: IconCash    },
+  online:    { label: 'Online',    color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC', Icon: IconCash    },
   jazzcash:  { label: 'JazzCash',  color: '#be185d', bg: '#fdf2f8', border: '#f9a8d4', Icon: IconPhone   },
   easypaisa: { label: 'EasyPaisa', color: '#15803d', bg: '#f0fdf4', border: '#86efac', Icon: IconPhone   },
   bank:      { label: 'Bank',      color: '#1d4ed8', bg: '#eff6ff', border: '#93c5fd', Icon: IconBank    },
@@ -192,7 +192,7 @@ const SIMPLE_MODES = [
   { value: 'cash',      label: 'Cash',      solid: '#059669', bg: '#f0fdf4', border: '#6ee7b7' },
   { value: 'credit',    label: 'Credit',    solid: '#dc2626', bg: '#fef2f2', border: '#fca5a5' },
   { value: 'card',      label: 'Card',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
-  { value: 'online',    label: 'Online',    solid: '#d97706', bg: '#fffbeb', border: '#fcd34d' },
+  { value: 'online',    label: 'Online',    solid: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC' },
   { value: 'jazzcash',  label: 'JazzCash',  solid: '#db2777', bg: '#fdf2f8', border: '#f9a8d4' },
   { value: 'easypaisa', label: 'EasyPaisa', solid: '#16a34a', bg: '#f0fdf4', border: '#86efac' },
   { value: 'bank',      label: 'Bank',      solid: '#2563eb', bg: '#eff6ff', border: '#93c5fd' },
@@ -279,8 +279,8 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
         <div style={{ padding: '18px 24px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
 
           {sale.paymentMode === 'split' && (
-            <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#92400e' }}>
-              ⚠ This sale used split payment. You can change it to a single mode below, but split breakdown will be kept in records.
+            <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#1D4ED8' }}>
+              Note: This sale used split payment. You can change it to a single mode below, but split breakdown will be kept in records.
             </div>
           )}
 

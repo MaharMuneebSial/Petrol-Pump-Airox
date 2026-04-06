@@ -52,7 +52,7 @@ export default function SalesReportPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">💰 Sales Report</h1>
+          <h1 className="ps-page-title">Sales Report</h1>
           <p className="ps-page-subtitle">Detailed sales analysis</p>
         </div>
       </div>

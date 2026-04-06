@@ -49,7 +49,7 @@ function StockRow({ name, stock, unit, rate, maxStock = 10000 }) {
   const isLow = stock < 500;
   const isEmpty = stock === 0;
   const pct = Math.min((stock / maxStock) * 100, 100);
-  const barColor = isEmpty ? '#ef4444' : isLow ? '#f59e0b' : '#10b981';
+  const barColor = isEmpty ? '#ef4444' : isLow ? '#DC2626' : '#10b981';
   return (
     <tr>
       <td style={{ padding: '7px 10px', color: '#1e293b', fontWeight: 600, fontSize: '12px' }}>
@@ -65,7 +65,7 @@ function StockRow({ name, stock, unit, rate, maxStock = 10000 }) {
               <div style={{ width: `${pct}%`, height: '100%', background: barColor, borderRadius: '99px', transition: 'width 0.8s ease' }} />
             </div>
           </div>
-          <span style={{ fontWeight: 700, fontSize: '12px', color: isEmpty ? '#ef4444' : isLow ? '#f59e0b' : '#10b981', whiteSpace: 'nowrap' }}>
+          <span style={{ fontWeight: 700, fontSize: '12px', color: isEmpty ? '#ef4444' : isLow ? '#DC2626' : '#10b981', whiteSpace: 'nowrap' }}>
             {fmt(stock)} <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 500 }}>{unit}</span>
           </span>
         </div>
@@ -133,16 +133,16 @@ export default function DashboardPage() {
           flexWrap: 'wrap', gap: '14px',
           position: 'relative', overflow: 'hidden',
         }}>
-          <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '160px', height: '160px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.1), transparent 70%)', animation: 'floatOrb 8s ease-in-out infinite', pointerEvents: 'none' }} />
+          <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '160px', height: '160px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.1), transparent 70%)', animation: 'floatOrb 8s ease-in-out infinite', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', position: 'relative', zIndex: 1 }}>
             <div style={{
               width: '34px', height: '34px', borderRadius: '9px',
-              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: 'white', fontSize: '14px', fontWeight: 800,
-              boxShadow: '0 3px 10px rgba(245,158,11,0.4)',
+              boxShadow: '0 3px 10px rgba(37,99,235,0.4)',
             }}>
               {company?.businessName?.charAt(0)?.toUpperCase() || 'P'}
             </div>
@@ -160,8 +160,8 @@ export default function DashboardPage() {
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '5px',
                   padding: '3px 10px', borderRadius: '999px',
-                  background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.25)',
-                  color: '#fcd34d', fontSize: '11px', fontWeight: 700,
+                  background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.25)',
+                  color: '#93C5FD', fontSize: '11px', fontWeight: 700,
                 }}>
                   <IconFuel /> {company?.pumpCode}
                 </span>
@@ -182,10 +182,10 @@ export default function DashboardPage() {
             {canAccess('sales_add') && (
               <Link href="/dashboard/sales/add" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '5px',
-                padding: '6px 12px', background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                padding: '6px 12px', background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                 color: 'white', fontWeight: 700, fontSize: '11px',
                 borderRadius: '7px', textDecoration: 'none',
-                boxShadow: '0 3px 10px rgba(245,158,11,0.4)',
+                boxShadow: '0 3px 10px rgba(37,99,235,0.4)',
               }}>
                 <IconTrending /> Add Sale
               </Link>
@@ -293,7 +293,7 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div style={{
                   width: '28px', height: '28px', borderRadius: '7px',
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
                 }}>
                   <IconBarrel />
@@ -355,7 +355,7 @@ export default function DashboardPage() {
                 boxShadow: '0 4px 16px rgba(15,31,92,0.3)',
                 position: 'relative', overflow: 'hidden',
               }}>
-                <div style={{ position: 'absolute', right: '-10px', top: '-10px', width: '60px', height: '60px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.15), transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', right: '-10px', top: '-10px', width: '60px', height: '60px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(37,99,235,0.15), transparent 70%)', pointerEvents: 'none' }} />
                 <p style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.15em', color: '#93c5fd', textTransform: 'uppercase', margin: '0 0 4px', position: 'relative' }}>
                   Available Cash
                 </p>

@@ -10,7 +10,7 @@ const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-PK', { day: '2-dig
 
 const PAYMENT = {
   cash:   { label: 'Cash',   dot: '#94a3b8', bg: '#f1f5f9', color: '#475569' },
-  credit: { label: 'Credit', dot: '#f59e0b', bg: '#fffbeb', color: '#92400e' },
+  credit: { label: 'Credit', dot: '#94a3b8', bg: '#f1f5f9', color: '#475569' },
   card:   { label: 'Card',   dot: '#3b82f6', bg: '#eff6ff', color: '#1d4ed8' },
   online: { label: 'Online', dot: '#10b981', bg: '#f0fdf4', color: '#065f46' },
 };
@@ -426,7 +426,7 @@ export default function PurchasePage() {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</p>
-                <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace' }}>Rs. {fmt(viewPurch.total)}</p>
+                <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#93C5FD', fontFamily: 'monospace' }}>Rs. {fmt(viewPurch.total)}</p>
               </div>
             </div>
             <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '0' }}>

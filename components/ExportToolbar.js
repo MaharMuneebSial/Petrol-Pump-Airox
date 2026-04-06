@@ -25,7 +25,7 @@ export default function ExportToolbar({ title, subtitle, filename, columns, data
     );
     const meta = [
       `"${title}${subtitle ? ' — ' + subtitle : ''}"`,
-      `"Generated: ${generatedAt}","Company: ${company?.name || 'PetroStation'}"`,
+      `"Generated: ${generatedAt}","Company: ${company?.businessName || 'PetroStation'}"`,
       '',
     ].join('\n');
 
@@ -59,7 +59,7 @@ export default function ExportToolbar({ title, subtitle, filename, columns, data
 
     /* ── company header (2-column layout table) ── */
     const companyLines = [
-      { text: company?.name || 'PetroStation', style: 'companyName' },
+      { text: company?.businessName || 'PetroStation', style: 'companyName' },
     ];
     if (company?.address) companyLines.push({ text: company.address,            style: 'companyMeta' });
     if (company?.phone)   companyLines.push({ text: `Tel: ${company.phone}`,    style: 'companyMeta' });

@@ -70,11 +70,11 @@ const UNIT_OPTIONS = [
 const FUELS = [
   { name: 'Petrol',          unit: 'Ltr', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0', Icon: IcoPetrol },
   { name: 'Hi Speed Diesel', unit: 'Ltr', color: '#2563EB', bg: '#EFF6FF', border: '#BFDBFE', Icon: IcoDiesel },
-  { name: 'LPG',             unit: 'Kg',  color: '#D97706', bg: '#FFFBEB', border: '#FDE68A', Icon: IcoLPG },
+  { name: 'LPG',             unit: 'Kg',  color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC', Icon: IcoLPG },
   { name: 'CNG',             unit: 'Kg',  color: '#0891B2', bg: '#ECFEFF', border: '#A5F3FC', Icon: IcoCNG },
   { name: 'Super Petrol',    unit: 'Ltr', color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE', Icon: IcoSuperPetrol },
   { name: 'Light Diesel Oil',unit: 'Ltr', color: '#0D1B3E', bg: '#EEF2FF', border: '#C7D2FE', Icon: IcoLightDiesel },
-  { name: 'Kerosene Oil',    unit: 'Ltr', color: '#B45309', bg: '#FEF3C7', border: '#FDE68A', Icon: IcoKerosene },
+  { name: 'Kerosene Oil',    unit: 'Ltr', color: '#475569', bg: '#F8FAFC', border: '#E2E8F0', Icon: IcoKerosene },
   { name: 'Hi Octane Petrol',unit: 'Ltr', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA', Icon: IcoHiOctane },
 ];
 
@@ -237,7 +237,7 @@ export default function AddProductPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
               <div style={{
                 width: '22px', height: '22px', borderRadius: '6px',
-                background: 'linear-gradient(135deg, #F0A500, #D4920A)',
+                background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'white',
               }}>

@@ -135,7 +135,7 @@ function EditAdjModal({ adj, productName, onSave, onClose }) {
 
 const UNIT_STYLE = {
   'Ltr':         { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
-  'Kg':          { bg: '#FFFBEB', color: '#B45309', border: '#FDE68A' },
+  'Kg':          { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Cubic Meter': { bg: '#F0FDF4', color: '#059669', border: '#BBF7D0' },
   'Unit':        { bg: '#F5F3FF', color: '#7C3AED', border: '#DDD6FE' },
 };
@@ -316,7 +316,7 @@ export default function RateAdjustmentPage() {
             padding: '10px 16px', borderBottom: '1px solid #F1F5F9',
             background: '#FAFBFC', display: 'flex', alignItems: 'center', gap: '8px',
           }}>
-            <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #F0A500, #D4920A)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <div style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'linear-gradient(135deg, #2563EB, #1D4ED8)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
               <IconTrendUp />
             </div>
             <span style={{ fontSize: '11px', fontWeight: 700, color: '#0D1B3E' }}>Update Rate</span>

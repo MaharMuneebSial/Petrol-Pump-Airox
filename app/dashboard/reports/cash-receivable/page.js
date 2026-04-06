@@ -26,7 +26,7 @@ export default function CashReceivablePage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">📥 Cash Receivable</h1>
+          <h1 className="ps-page-title">Cash Receivable</h1>
           <p className="ps-page-subtitle">Customers who owe you money</p>
         </div>
         <Link href="/dashboard/accounts/add" className="btn-primary px-4 py-2 text-sm" style={{ textDecoration: 'none' }}>+ Add Customer</Link>
@@ -62,7 +62,6 @@ export default function CashReceivablePage() {
             <tbody>
               {data.length === 0 ? (
                 <tr><td colSpan={6} className="py-12 text-center" style={{ color: '#94a3b8' }}>
-                  <p style={{ fontSize: '32px' }}>✅</p>
                   <p className="mt-2 font-medium">No outstanding receivables</p>
                 </td></tr>
               ) : data.map((d, i) => (

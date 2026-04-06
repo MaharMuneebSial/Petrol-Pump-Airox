@@ -38,41 +38,38 @@ export default function SummarySheetPage() {
   if (!data) return <div className="py-20 text-center" style={{ color: '#94a3b8' }}>Loading...</div>;
 
   const rows = [
-    { label: 'Total Sales Revenue', value: data.totalSales, color: '#10b981', icon: '💰' },
-    { label: 'Cash Sales', value: data.cashSales, color: '#059669', icon: '💵', sub: true },
-    { label: 'Credit Sales', value: data.creditSales, color: '#d97706', icon: '📋', sub: true },
-    { label: 'Total Purchases', value: data.totalPurchases, color: '#ef4444', icon: '🛒' },
-    { label: 'Gross Profit', value: data.grossProfit, color: data.grossProfit >= 0 ? '#0f1f5c' : '#ef4444', icon: '📈', bold: true },
-    { label: 'Total Expenses', value: data.totalExpenses, color: '#ef4444', icon: '📋' },
-    { label: 'Net Profit', value: data.netProfit, color: data.netProfit >= 0 ? '#10b981' : '#ef4444', icon: '🏆', bold: true },
-    { label: 'Cash Receipts', value: data.receipts, color: '#10b981', icon: '📥' },
-    { label: 'Cash Payments', value: data.payments, color: '#ef4444', icon: '📤' },
-    { label: 'Total Receivable', value: data.totalReceivable, color: '#3b82f6', icon: '📨' },
-    { label: 'Total Payable', value: data.totalPayable, color: '#f59e0b', icon: '📧' },
-    { label: 'Stock Value', value: data.stockValue, color: '#7c3aed', icon: '🛢️' },
+    { label: 'Total Sales Revenue', value: data.totalSales, color: '#10b981' },
+    { label: 'Cash Sales', value: data.cashSales, color: '#059669', sub: true },
+    { label: 'Credit Sales', value: data.creditSales, color: '#475569', sub: true },
+    { label: 'Total Purchases', value: data.totalPurchases, color: '#ef4444' },
+    { label: 'Gross Profit', value: data.grossProfit, color: data.grossProfit >= 0 ? '#0f1f5c' : '#ef4444', bold: true },
+    { label: 'Total Expenses', value: data.totalExpenses, color: '#ef4444' },
+    { label: 'Net Profit', value: data.netProfit, color: data.netProfit >= 0 ? '#10b981' : '#ef4444', bold: true },
+    { label: 'Cash Receipts', value: data.receipts, color: '#10b981' },
+    { label: 'Cash Payments', value: data.payments, color: '#ef4444' },
+    { label: 'Total Receivable', value: data.totalReceivable, color: '#3b82f6' },
+    { label: 'Total Payable', value: data.totalPayable, color: '#475569' },
+    { label: 'Stock Value', value: data.stockValue, color: '#7c3aed' },
   ];
 
   return (
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">📊 Summary Sheet</h1>
+          <h1 className="ps-page-title">Summary Sheet</h1>
           <p className="ps-page-subtitle">Complete financial overview of your station</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Transactions', value: data.salesCount + data.purchasesCount, icon: '🔄', color: '#0f1f5c' },
-          { label: 'Net Profit', value: `Rs. ${fmt(data.netProfit)}`, icon: '🏆', color: data.netProfit >= 0 ? '#10b981' : '#ef4444' },
-          { label: 'Stock Value', value: `Rs. ${fmt(data.stockValue)}`, icon: '🛢️', color: '#7c3aed' },
-          { label: 'Receivable', value: `Rs. ${fmt(data.totalReceivable)}`, icon: '📥', color: '#3b82f6' },
+          { label: 'Total Transactions', value: data.salesCount + data.purchasesCount, color: '#0f1f5c' },
+          { label: 'Net Profit', value: `Rs. ${fmt(data.netProfit)}`, color: data.netProfit >= 0 ? '#10b981' : '#ef4444' },
+          { label: 'Stock Value', value: `Rs. ${fmt(data.stockValue)}`, color: '#7c3aed' },
+          { label: 'Receivable', value: `Rs. ${fmt(data.totalReceivable)}`, color: '#3b82f6' },
         ].map(s => (
           <div key={s.label} className="ps-card p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <span style={{ fontSize: '20px' }}>{s.icon}</span>
-              <p className="text-xs" style={{ color: '#94a3b8' }}>{s.label}</p>
-            </div>
+            <p className="text-xs mb-2" style={{ color: '#94a3b8' }}>{s.label}</p>
             <p className="text-lg font-bold" style={{ color: s.color }}>{s.value}</p>
           </div>
         ))}
@@ -90,7 +87,6 @@ export default function SummarySheetPage() {
               style={{ background: row.bold ? '#f8fafc' : 'white', borderBottom: '1px solid #f1f5f9' }}
             >
               <div className="flex items-center gap-3">
-                <span style={{ fontSize: '16px', paddingLeft: row.sub ? '16px' : '0' }}>{row.icon}</span>
                 <span
                   className={`text-sm ${row.bold ? 'font-bold' : 'font-medium'}`}
                   style={{ color: row.bold ? '#0f1f5c' : '#374151', paddingLeft: row.sub ? '8px' : '0' }}

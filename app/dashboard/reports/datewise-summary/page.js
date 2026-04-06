@@ -51,7 +51,7 @@ export default function DatewiseSummaryPage() {
     <div className="space-y-5">
       <div className="ps-page-header">
         <div>
-          <h1 className="ps-page-title">📅 Datewise Summary</h1>
+          <h1 className="ps-page-title">Datewise Summary</h1>
           <p className="ps-page-subtitle">Day-by-day financial summary</p>
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function DatewiseSummaryPage() {
                   <td className="text-sm font-medium" style={{ color: '#374151' }}>{r.date}</td>
                   <td className="text-right text-sm font-semibold" style={{ color: '#10b981' }}>{fmt(r.sales)}</td>
                   <td className="text-right text-sm" style={{ color: '#ef4444' }}>{fmt(r.purchases)}</td>
-                  <td className="text-right text-sm" style={{ color: '#f59e0b' }}>{fmt(r.expenses)}</td>
+                  <td className="text-right text-sm" style={{ color: '#DC2626' }}>{fmt(r.expenses)}</td>
                   <td className="text-right text-sm font-bold" style={{ color: r.profit >= 0 ? '#0f1f5c' : '#ef4444' }}>{fmt(r.profit)}</td>
                 </tr>
               ))}
@@ -99,7 +99,7 @@ export default function DatewiseSummaryPage() {
                   <td className="py-3 px-4 font-bold text-sm" style={{ color: '#0f1f5c' }}>Total</td>
                   <td className="py-3 px-4 text-right font-bold text-sm" style={{ color: '#10b981' }}>{fmt(totals.sales)}</td>
                   <td className="py-3 px-4 text-right font-bold text-sm" style={{ color: '#ef4444' }}>{fmt(totals.purchases)}</td>
-                  <td className="py-3 px-4 text-right font-bold text-sm" style={{ color: '#f59e0b' }}>{fmt(totals.expenses)}</td>
+                  <td className="py-3 px-4 text-right font-bold text-sm" style={{ color: '#DC2626' }}>{fmt(totals.expenses)}</td>
                   <td className="py-3 px-4 text-right font-bold text-sm" style={{ color: totals.profit >= 0 ? '#10b981' : '#ef4444' }}>{fmt(totals.profit)}</td>
                 </tr>
               </tfoot>
