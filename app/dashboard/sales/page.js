@@ -30,15 +30,15 @@ const IconSplit   = () => <svg width="12" height="12" fill="none" stroke="curren
 
 // ─── Payment config ───────────────────────────────────────────────────────────
 const PAYMENT_FILTER = [
-  { value: '',          label: 'All' },
-  { value: 'cash',      label: 'Cash',      color: '#059669', bg: '#dcfce7' },
-  { value: 'credit',    label: 'Credit',    color: '#dc2626', bg: '#fee2e2' },
-  { value: 'card',      label: 'Card',      color: '#2563eb', bg: '#dbeafe' },
-  { value: 'online',    label: 'Online',    color: '#0891B2', bg: '#ECFEFF' },
-  { value: 'jazzcash',  label: 'JazzCash',  color: '#be185d', bg: '#fce7f3' },
-  { value: 'easypaisa', label: 'EasyPaisa', color: '#15803d', bg: '#dcfce7' },
-  { value: 'bank',      label: 'Bank',      color: '#1d4ed8', bg: '#dbeafe' },
-  { value: 'split',     label: 'Split',     color: '#4338ca', bg: '#ede9fe' },
+  { value: '',          label: 'All Payment Modes' },
+  { value: 'cash',      label: 'Cash',      color: '#059669', bg: '#dcfce7', border: '#6ee7b7' },
+  { value: 'credit',    label: 'Credit',    color: '#dc2626', bg: '#fee2e2', border: '#fca5a5' },
+  { value: 'card',      label: 'Card',      color: '#2563eb', bg: '#dbeafe', border: '#93c5fd' },
+  { value: 'online',    label: 'Online',    color: '#d97706', bg: '#fef3c7', border: '#fcd34d' },
+  { value: 'jazzcash',  label: 'JazzCash',  color: '#be185d', bg: '#fce7f3', border: '#f9a8d4' },
+  { value: 'easypaisa', label: 'EasyPaisa', color: '#15803d', bg: '#dcfce7', border: '#86efac' },
+  { value: 'bank',      label: 'Bank Transfer', color: '#1d4ed8', bg: '#dbeafe', border: '#93c5fd' },
+  { value: 'split',     label: 'Split Payment', color: '#4338ca', bg: '#ede9fe', border: '#c4b5fd' },
 ];
 
 const MODE_CONFIG = {
@@ -89,67 +89,96 @@ function ViewModal({ sale, productName, customerName, payments, onClose }) {
   const cfg = MODE_CONFIG[sale.paymentMode] || MODE_CONFIG.cash;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
-      <div className="ps-card" style={{ width: '100%', maxWidth: '460px', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', background: 'rgba(10,18,40,0.65)', backdropFilter: 'blur(6px)' }}>
+      <div style={{ width: '100%', maxWidth: '760px', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.28)', background: '#fff' }}>
+
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', padding: '18px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Sale Detail</p>
-            <p style={{ margin: '3px 0 0', fontSize: '16px', fontWeight: 800, color: '#fff', letterSpacing: '-0.01em' }}>{fmtDate(sale.date)}</p>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total</p>
-            <p style={{ margin: '3px 0 0', fontSize: '20px', fontWeight: 800, color: '#93C5FD', fontFamily: 'monospace' }}>Rs. {fmt(sale.total)}</p>
+        <div style={{ background: 'linear-gradient(135deg, #0D1B3E 0%, #1a3475 100%)', padding: '16px 22px', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div>
+                <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Sale Receipt</p>
+                <p style={{ margin: '3px 0 4px', fontSize: '18px', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{fmtDate(sale.date)}</p>
+                <PayBadge mode={sale.paymentMode} />
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <div style={{ textAlign: 'right' }}>
+                <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Total Amount</p>
+                <p style={{ margin: '3px 0 0', fontSize: '24px', fontWeight: 800, color: '#F0A500', fontFamily: 'monospace', letterSpacing: '-0.02em' }}>Rs.&nbsp;{fmt(sale.total)}</p>
+              </div>
+              <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', color: '#fff', cursor: 'pointer', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconX />
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '16px 20px' }}>
-          <InfoRow label="Product"  value={productName} />
-          <InfoRow label="Customer" value={customerName} />
-          <InfoRow label="Quantity" value={`${fmt(sale.quantity)} ${sale.unit || 'Ltr'}`} accent="#7c3aed" />
-          <InfoRow label="Rate"     value={`Rs. ${fmt(sale.rate)} / ${sale.unit || 'Ltr'}`} />
+        <div style={{ padding: '16px 22px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
-          {/* Payment */}
-          <div style={{ padding: '9px 0', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Payment</span>
-            <PayBadge mode={sale.paymentMode} />
+          {/* Info row — 4 cells in one line */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.2fr 0.8fr 1fr', gap: '1px', background: '#eef2f7', border: '1.5px solid #eef2f7', borderRadius: '10px', overflow: 'hidden' }}>
+            {[
+              { label: 'Product',  value: productName,                                      color: '#0D1B3E' },
+              { label: 'Customer', value: customerName,                                     color: '#0D1B3E' },
+              { label: 'Quantity', value: `${fmt(sale.quantity)} ${sale.unit || 'Ltr'}`,    color: '#7c3aed' },
+              { label: 'Rate',     value: `Rs. ${fmt(sale.rate)} / ${sale.unit || 'Ltr'}`,  color: '#0D1B3E' },
+            ].map(({ label, value, color }) => (
+              <div key={label} style={{ background: '#fff', padding: '10px 14px' }}>
+                <p style={{ margin: 0, fontSize: '9.5px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '3px' }}>{label}</p>
+                <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</p>
+              </div>
+            ))}
           </div>
 
-          {/* Split breakdown */}
+          {/* Payment breakdown */}
           {payments.length > 0 && (
-            <div style={{ marginTop: '10px', border: '1.5px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-              <div style={{ padding: '8px 12px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-                <p style={{ margin: 0, fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Payment Breakdown</p>
+            <div style={{ border: '1.5px solid #e8ecf2', borderRadius: '10px', overflow: 'hidden' }}>
+              {/* breakdown header */}
+              <div style={{ padding: '8px 14px', background: '#f8fafc', borderBottom: '1px solid #eef2f7', display: 'flex', alignItems: 'center', gap: '7px' }}>
+                <IconSplit />
+                <span style={{ fontSize: '10px', fontWeight: 800, color: '#0D1B3E', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.55 }}>Payment Breakdown</span>
+                <span style={{ marginLeft: 'auto', fontSize: '10.5px', fontWeight: 600, color: '#94a3b8' }}>{payments.length} method{payments.length > 1 ? 's' : ''}</span>
               </div>
+              {/* breakdown rows */}
               {payments.map((p, i) => {
-                const pc = MODE_CONFIG[p.mode] || {};
+                const pc = MODE_CONFIG[p.mode] || { color: '#64748b' };
+                const isLast = i === payments.length - 1;
+                const meta = [];
+                if (p.meta?.phone)    meta.push(<span key="ph"  style={{ display:'inline-flex', alignItems:'center', gap:'4px' }}><IconPhone />{p.meta.phone}{p.meta.txnId ? <span style={{ color:'#94a3b8' }}>&nbsp;· TXN: {p.meta.txnId}</span> : ''}</span>);
+                if (p.meta?.bankName) meta.push(<span key="bk"  style={{ display:'inline-flex', alignItems:'center', gap:'4px' }}><IconBank />{p.meta.bankName} · {p.meta.accountNo}{p.meta.ref ? <span style={{ color:'#94a3b8' }}>&nbsp;· Ref: {p.meta.ref}</span> : ''}</span>);
+                if (p.meta?.lastFour) meta.push(<span key="cc"  style={{ display:'inline-flex', alignItems:'center', gap:'4px' }}><IconCredit />••••&nbsp;{p.meta.lastFour}{p.meta.ref ? <span style={{ color:'#94a3b8' }}>&nbsp;· Ref: {p.meta.ref}</span> : ''}</span>);
                 return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '9px 12px', borderBottom: i < payments.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 14px', borderBottom: isLast ? 'none' : '1px solid #f1f5f9', background: '#fff' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                       <PayBadge mode={p.mode} />
-                      {p.meta?.phone     && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Ph: {p.meta.phone}{p.meta.txnId ? ` · TXN: ${p.meta.txnId}` : ''}</span>}
-                      {p.meta?.bankName  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Bank: {p.meta.bankName} · {p.meta.accountNo}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
-                      {p.meta?.lastFour  && <span style={{ fontSize: '10.5px', color: '#64748b', marginTop: '3px' }}>Card: ****{p.meta.lastFour}{p.meta.ref ? ` · Ref: ${p.meta.ref}` : ''}</span>}
+                      {meta.length > 0 && (
+                        <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                          {meta}
+                        </span>
+                      )}
                     </div>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: pc.color || '#0D1B3E', fontFamily: 'monospace', flexShrink: 0, marginLeft: '12px' }}>Rs. {fmt(p.amount)}</span>
+                    <span style={{ fontSize: '14px', fontWeight: 800, color: pc.color, fontFamily: 'monospace', flexShrink: 0, marginLeft: '16px' }}>Rs.&nbsp;{fmt(p.amount)}</span>
                   </div>
                 );
               })}
             </div>
           )}
 
+          {/* Note */}
           {sale.note && (
-            <div style={{ marginTop: '10px', background: '#f8fafc', borderRadius: '8px', padding: '10px 12px', border: '1px solid #f1f5f9' }}>
-              <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Note</p>
-              <p style={{ margin: 0, fontSize: '12.5px', color: '#475569' }}>{sale.note}</p>
+            <div style={{ background: '#fffbeb', border: '1.5px solid #fde68a', borderRadius: '8px', padding: '9px 14px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.08em', paddingTop: '1px', flexShrink: 0 }}>Note</span>
+              <span style={{ fontSize: '12.5px', color: '#78350f', lineHeight: 1.5 }}>{sale.note}</span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <div style={{ padding: '10px 22px 16px', display: 'flex', justifyContent: 'flex-end' }}>
+          <button onClick={onClose} style={{ padding: '8px 24px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#475569', background: '#f8fafc', cursor: 'pointer', fontFamily: 'inherit' }}>
             Close
           </button>
         </div>
@@ -234,9 +263,9 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}>
-      <div className="ps-card" style={{ width: '100%', maxWidth: '520px', overflow: 'visible' }}>
+      <div className="ps-card" style={{ width: '100%', maxWidth: '720px', overflow: 'visible' }}>
         {/* Header */}
-        <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Edit Sale</p>
             <p style={{ margin: '2px 0 0', fontSize: '14px', fontWeight: 700, color: '#fff' }}>{productName}</p>
@@ -247,7 +276,7 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
         </div>
 
         {/* Body */}
-        <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
+        <div style={{ padding: '18px 24px', display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '70vh', overflowY: 'auto' }}>
 
           {sale.paymentMode === 'split' && (
             <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '9px 12px', fontSize: '12px', color: '#1D4ED8' }}>
@@ -255,14 +284,12 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
             </div>
           )}
 
-          {/* Date */}
-          <div>
-            <label style={lbl}>Sale Date *</label>
-            <input type="date" style={inp()} value={form.date} onChange={handleChange('date')} />
-          </div>
-
-          {/* Qty + Rate */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          {/* Date + Qty + Rate in one row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr 1fr 1.2fr', gap: '12px', alignItems: 'end' }}>
+            <div>
+              <label style={lbl}>Sale Date *</label>
+              <input type="date" style={inp()} value={form.date} onChange={handleChange('date')} />
+            </div>
             <div>
               <label style={lbl}>Quantity *</label>
               <input style={inp()} placeholder="0.00" value={form.quantity} onChange={handleChange('quantity')} inputMode="decimal" />
@@ -274,12 +301,11 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
                 <input style={inp({ paddingLeft: '34px' })} placeholder="0.00" value={form.rate} onChange={handleChange('rate')} inputMode="decimal" />
               </div>
             </div>
-          </div>
-
-          {/* Total */}
-          <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', borderRadius: '10px', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total Amount</span>
-            <span style={{ fontSize: '18px', fontWeight: 800, color: total > 0 ? '#93C5FD' : 'rgba(255,255,255,0.2)', fontFamily: 'monospace' }}>Rs. {fmt(total)}</span>
+            {/* Total inline */}
+            <div style={{ background: 'linear-gradient(135deg, #0D1B3E, #1e3a8a)', borderRadius: '10px', padding: '9px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.45)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Total</span>
+              <span style={{ fontSize: '16px', fontWeight: 800, color: total > 0 ? '#F0A500' : 'rgba(255,255,255,0.2)', fontFamily: 'monospace', marginTop: '1px' }}>Rs.&nbsp;{fmt(total)}</span>
+            </div>
           </div>
 
           {/* Payment Mode */}
@@ -342,9 +368,9 @@ function EditModal({ sale, productName, customers, onSave, onClose }) {
 
         {/* Footer */}
         <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#fff', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <button onClick={onClose} style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, border: '1.5px solid #e2e8f0', color: '#64748b', background: '#f8fafc', cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
           <button onClick={handleSave} disabled={saving}
-            style={{ padding: '8px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, background: '#0D1B3E', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.75 : 1, fontFamily: 'inherit' }}>
+            style={{ padding: '8px 22px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, background: '#0D1B3E', color: '#fff', border: 'none', cursor: saving ? 'not-allowed' : 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px', opacity: saving ? 0.75 : 1, fontFamily: 'inherit' }}>
             {saving ? <><span className="spinner" /> Saving...</> : <><IconSave /> Save Changes</>}
           </button>
         </div>
@@ -363,6 +389,11 @@ export default function SalesPage() {
   const [dateTo,     setDateTo]     = useState('');
   const [filterMode, setFilterMode] = useState('');
 
+  // Searchable payment filter dropdown
+  const [showPayDrop,  setShowPayDrop]  = useState(false);
+  const [paySearch,    setPaySearch]    = useState('');
+  const payDropRef = useRef(null);
+
   const [deleteId,   setDeleteId]   = useState(null);
   const [viewSale,   setViewSale]   = useState(null);   // { sale, payments }
   const [editSale,   setEditSale]   = useState(null);   // sale object
@@ -372,6 +403,13 @@ export default function SalesPage() {
     setSales(s); setProducts(p); setAccounts(a);
   };
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    const h = (e) => { if (payDropRef.current && !payDropRef.current.contains(e.target)) { setShowPayDrop(false); setPaySearch(''); } };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+
 
   const getProductName  = (id) => products.find(p => p.id === id)?.name  || 'Unknown';
   const getCustomerName = (id) => id ? (accounts.find(a => a.id === id)?.name || 'Unknown') : 'Cash Customer';
@@ -452,42 +490,138 @@ export default function SalesPage() {
       <div className="ps-card">
 
         {/* Toolbar */}
-        <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #f1f5f9', background: '#fafbfc' }}>
-          <div style={{ position: 'relative', flex: '1 1 180px', maxWidth: '220px' }}>
-            <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
-            <input className="ps-input" placeholder="Search product or customer…" value={search} onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: '30px', fontSize: '12px', padding: '6px 10px 6px 30px' }} />
-            {search && (
-              <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '7px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', padding: 0 }}><IconX /></button>
-            )}
-          </div>
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9', background: '#fafbfc' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: '0 0 auto' }}>
-            <span style={{ color: '#94a3b8', display: 'flex' }}><IconCalendar /></span>
-            <input type="date" className="ps-input" value={dateFrom} onChange={e => setDateFrom(e.target.value)} style={{ width: '130px', fontSize: '12px', padding: '6px 8px' }} />
-            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>–</span>
-            <input type="date" className="ps-input" value={dateTo}   onChange={e => setDateTo(e.target.value)}   style={{ width: '130px', fontSize: '12px', padding: '6px 8px' }} />
-          </div>
+            {/* Search */}
+            <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '260px' }}>
+              <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}><IconSearch /></span>
+              <input
+                placeholder="Search product or customer…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{ width: '100%', boxSizing: 'border-box', paddingLeft: '32px', paddingRight: search ? '28px' : '10px', padding: '7px 10px 7px 32px', fontSize: '12.5px', fontFamily: 'inherit', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: '#fff', color: '#0D1B3E', outline: 'none' }}
+              />
+              {search && (
+                <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', padding: 0 }}><IconX /></button>
+              )}
+            </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', flex: '0 0 auto' }}>
-            {PAYMENT_FILTER.map(({ value, label, color, bg }) => {
-              const active = filterMode === value;
-              return (
-                <button key={value} onClick={() => setFilterMode(value)}
-                  style={{ padding: '4px 10px', borderRadius: '99px', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', border: 'none', background: active ? (bg || '#0D1B3E') : '#f1f5f9', color: active ? (color || '#fff') : '#64748b', outline: active && !value ? '2px solid #0D1B3E' : 'none', outlineOffset: '-2px', transition: 'all 0.12s' }}>
-                  {label}
-                </button>
+            {/* Divider */}
+            <div style={{ width: '1px', height: '28px', background: '#e2e8f0', flexShrink: 0 }} />
+
+            {/* Date range */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: '0 0 auto' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0 }}>Date</span>
+              <input type="date"
+                value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+                style={{ width: '132px', fontSize: '12px', fontFamily: 'inherit', padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: dateFrom ? '#eff6ff' : '#fff', color: dateFrom ? '#1d4ed8' : '#64748b', outline: 'none', borderColor: dateFrom ? '#93c5fd' : '#e2e8f0' }}
+              />
+              <span style={{ fontSize: '11px', color: '#cbd5e1', fontWeight: 700 }}>→</span>
+              <input type="date"
+                value={dateTo} onChange={e => setDateTo(e.target.value)}
+                style={{ width: '132px', fontSize: '12px', fontFamily: 'inherit', padding: '7px 8px', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: dateTo ? '#eff6ff' : '#fff', color: dateTo ? '#1d4ed8' : '#64748b', outline: 'none', borderColor: dateTo ? '#93c5fd' : '#e2e8f0' }}
+              />
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: '1px', height: '28px', background: '#e2e8f0', flexShrink: 0 }} />
+
+            {/* Searchable payment filter */}
+            {(() => {
+              const active = PAYMENT_FILTER.find(f => f.value === filterMode);
+              const filtered_pay = PAYMENT_FILTER.filter(f =>
+                f.label.toLowerCase().includes(paySearch.toLowerCase())
               );
-            })}
-          </div>
+              return (
+                <div ref={payDropRef} style={{ position: 'relative', flex: '0 0 auto' }}>
+                  {/* Trigger: plain search input */}
+                  <div style={{ position: 'relative' }}>
+                    {filterMode && active?.color && !showPayDrop && (
+                      <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '7px', height: '7px', borderRadius: '50%', background: active.color, flexShrink: 0, pointerEvents: 'none' }} />
+                    )}
+                    {!showPayDrop && (
+                      <span style={{ position: 'absolute', left: filterMode ? '24px' : '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}>
+                        {!filterMode && <IconSearch />}
+                      </span>
+                    )}
+                    {showPayDrop && (
+                      <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}><IconSearch /></span>
+                    )}
+                    <input
+                      value={showPayDrop ? paySearch : (filterMode ? (active?.label || '') : '')}
+                      placeholder="All Payment Modes"
+                      onChange={e => setPaySearch(e.target.value)}
+                      onFocus={() => { setShowPayDrop(true); setPaySearch(''); }}
+                      readOnly={!showPayDrop}
+                      style={{
+                        width: '175px', boxSizing: 'border-box',
+                        padding: '7px 28px 7px ' + (filterMode && !showPayDrop ? '24px' : '30px'),
+                        fontSize: '12.5px', fontFamily: 'inherit',
+                        fontWeight: !showPayDrop && filterMode ? 600 : 400,
+                        color: !showPayDrop && filterMode ? (active?.color || '#0D1B3E') : '#64748b',
+                        background: '#fff',
+                        border: filterMode ? `1.5px solid ${active?.border || '#e2e8f0'}` : '1.5px solid #e2e8f0',
+                        borderRadius: '8px', outline: 'none', cursor: 'pointer',
+                      }}
+                    />
+                    <span style={{ position: 'absolute', right: '9px', top: '50%', transform: `translateY(-50%) rotate(${showPayDrop ? 180 : 0}deg)`, transition: 'transform 0.18s', display: 'flex', color: '#94a3b8', pointerEvents: 'none' }}>
+                      <IconChevron />
+                    </span>
+                  </div>
 
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            {hasFilters && (
-              <button onClick={clearFilters} style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, cursor: 'pointer', background: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5', fontFamily: 'inherit' }}>
-                <IconX /> Clear
-              </button>
-            )}
-            <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>{filtered.length} record{filtered.length !== 1 ? 's' : ''}</span>
+                  {/* Dropdown */}
+                  {showPayDrop && (
+                    <div style={{ position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 300, width: '220px', background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 8px 24px rgba(0,0,0,0.11)', overflow: 'hidden' }}>
+                      {/* Options */}
+                      <div style={{ maxHeight: '220px', overflowY: 'auto' }}>
+                        {filtered_pay.length === 0 ? (
+                          <div style={{ padding: '12px 14px', fontSize: '12px', color: '#94a3b8', textAlign: 'center' }}>No match</div>
+                        ) : filtered_pay.map(({ value, label, color, border }) => {
+                          const sel = filterMode === value;
+                          return (
+                            <div key={value}
+                              onClick={() => { setFilterMode(value); setShowPayDrop(false); setPaySearch(''); }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '9px', padding: '8px 14px', cursor: 'pointer', background: sel ? '#f8fafc' : 'transparent', borderLeft: sel ? `3px solid ${color || '#0D1B3E'}` : '3px solid transparent' }}
+                              onMouseEnter={e => { if (!sel) e.currentTarget.style.background = '#f8fafc'; }}
+                              onMouseLeave={e => { if (!sel) e.currentTarget.style.background = 'transparent'; }}
+                            >
+                              {value
+                                ? <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: color, flexShrink: 0 }} />
+                                : <span style={{ width: '7px', height: '7px', borderRadius: '50%', border: '1.5px solid #cbd5e1', flexShrink: 0 }} />
+                              }
+                              <span style={{ flex: 1, fontSize: '12.5px', fontWeight: sel ? 700 : 500, color: sel ? (color || '#0D1B3E') : '#374151' }}>{label}</span>
+                              {sel && (
+                                <svg width="13" height="13" fill="none" stroke={color || '#0D1B3E'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                                  <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Right: active filter tags + record count */}
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {hasFilters && (
+                <button onClick={clearFilters}
+                  style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 10px', borderRadius: '7px', fontSize: '11.5px', fontWeight: 600, cursor: 'pointer', background: '#fff', color: '#64748b', border: '1.5px solid #e2e8f0', fontFamily: 'inherit', transition: 'all 0.12s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.color = '#64748b'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                >
+                  <IconX /> Clear filters
+                </button>
+              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', background: '#0D1B3E', borderRadius: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#F0A500', fontVariantNumeric: 'tabular-nums' }}>{filtered.length}</span>
+                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>record{filtered.length !== 1 ? 's' : ''}</span>
+              </div>
+            </div>
           </div>
         </div>
 

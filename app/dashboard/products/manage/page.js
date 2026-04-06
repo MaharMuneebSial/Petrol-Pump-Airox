@@ -252,6 +252,18 @@ function EditModal({ product, onSave, onClose }) {
   );
 }
 
+// ── Action Button ──────────────────────────────────────────────────────────────
+function ActionBtn({ onClick, icon, bg, color, border, title }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button onClick={onClick} title={title}
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{ width: '28px', height: '28px', borderRadius: '7px', border: `1.5px solid ${border}`, background: hov ? bg : '#fff', color, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.12s', flexShrink: 0 }}>
+      {icon}
+    </button>
+  );
+}
+
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function ManageProductsPage() {
   const [products, setProducts]       = useState([]);
@@ -294,151 +306,56 @@ export default function ManageProductsPage() {
       {/* ── Page Header ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '34px', height: '34px', borderRadius: '9px',
-            background: 'linear-gradient(135deg, #0D1B3E, #1a2f72)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: 'white', flexShrink: 0, boxShadow: '0 3px 10px rgba(13,27,62,0.22)',
-          }}>
+          <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg,#0D1B3E,#1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
             <IconPackage />
           </div>
           <div>
-            <h1 style={{ fontSize: '15px', fontWeight: 800, color: '#0D1B3E', margin: 0, letterSpacing: '-0.02em' }}>
-              Manage Products
-            </h1>
-            <p style={{ fontSize: '11px', color: '#94A3B8', margin: '1px 0 0', fontWeight: 400 }}>
-              View, edit and manage your fuel inventory
-            </p>
+            <h1 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0D1B3E', letterSpacing: '-0.025em', lineHeight: 1.2 }}>Manage Products</h1>
+            <p style={{ margin: 0, fontSize: '11.5px', color: '#94a3b8', marginTop: '1px' }}>View, edit and manage your fuel inventory</p>
           </div>
         </div>
-        <Link href="/dashboard/products/add" style={{
-          display: 'inline-flex', alignItems: 'center', gap: '5px',
-          padding: '7px 16px', background: '#0D1B3E',
-          color: 'white', textDecoration: 'none',
-          borderRadius: '8px', fontWeight: 700, fontSize: '12px',
-          boxShadow: '0 2px 8px rgba(13,27,62,0.22)', fontFamily: 'inherit',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#122158'; }}
-        onMouseLeave={e => { e.currentTarget.style.background = '#0D1B3E'; }}
-        >
+        <Link href="/dashboard/products/add" className="btn-gold" style={{ fontSize: '12.5px', padding: '7px 14px' }}>
           <IconPlus /> Add Product
         </Link>
       </div>
 
-      {/* ── Compact Stats Bar ── */}
-      <div style={{
-        background: 'white', borderRadius: '11px',
-        border: '1px solid #E2E8F0',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        display: 'grid', gridTemplateColumns: '1fr 1px 1fr 1px 1fr',
-        overflow: 'hidden',
-      }}>
-        {/* Stat 1 — Total Products */}
-        <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#3B4FCD', flexShrink: 0,
-          }}>
-            <IconPackage />
-          </div>
-          <div>
-            <div style={{ fontSize: '9.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '2px' }}>
-              Total Products
+      {/* ── Stats ── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px' }}>
+        {[
+          { label: 'Total Products', value: products.length, sub: `${filtered.length} shown`, Icon: IconPackage, color: '#1e3a8a', accent: '#3b82f6', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)' },
+          { label: 'Low Stock',      value: lowCount,        sub: outCount > 0 ? `${outCount} out of stock` : 'Items below threshold', Icon: IconWarning, color: lowCount > 0 ? '#92400e' : '#065f46', accent: lowCount > 0 ? '#d97706' : '#10b981', bg: lowCount > 0 ? 'linear-gradient(135deg,#fffbeb,#fef3c7)' : 'linear-gradient(135deg,#f0fdf4,#dcfce7)' },
+          { label: 'Total Stock Value', value: `Rs. ${fmt(totalStockValue)}`, sub: 'Inventory worth', Icon: IconTrend, color: '#065f46', accent: '#10b981', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)' },
+        ].map(({ label, value, sub, Icon, color, accent, bg }) => (
+          <div key={label} style={{ background: bg, borderRadius: '12px', padding: '12px 14px', border: `1px solid ${accent}22`, display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '9px', flexShrink: 0, background: `${accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: accent }}>
+              <Icon />
             </div>
-            <div style={{ fontSize: '17px', fontWeight: 800, color: '#0D1B3E', lineHeight: 1 }}>
-              {products.length}
+            <div style={{ minWidth: 0 }}>
+              <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.07em', opacity: 0.75 }}>{label}</p>
+              <p style={{ margin: '1px 0 0', fontSize: '15px', fontWeight: 800, color, letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{value}</p>
+              <p style={{ margin: 0, fontSize: '10px', color: accent, opacity: 0.75 }}>{sub}</p>
             </div>
           </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ background: '#F1F5F9' }} />
-
-        {/* Stat 2 — Low / Out of Stock */}
-        <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: lowCount > 0 ? '#FEF2F2' : '#F0FDF4',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: lowCount > 0 ? '#DC2626' : '#059669', flexShrink: 0,
-          }}>
-            <IconWarning />
-          </div>
-          <div>
-            <div style={{ fontSize: '9.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '2px' }}>
-              Low Stock Items
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-              <span style={{ fontSize: '17px', fontWeight: 800, color: lowCount > 0 ? '#DC2626' : '#059669', lineHeight: 1 }}>
-                {lowCount}
-              </span>
-              {outCount > 0 && (
-                <span style={{ fontSize: '10px', fontWeight: 600, color: '#DC2626' }}>
-                  ({outCount} out)
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ background: '#F1F5F9' }} />
-
-        {/* Stat 3 — Total Stock Value */}
-        <div style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#059669', flexShrink: 0,
-          }}>
-            <IconTrend />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: '9.5px', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '2px' }}>
-              Total Stock Value
-            </div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: '#059669', lineHeight: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Rs. {fmt(totalStockValue)}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* ── Table Card ── */}
       <div className="ps-card">
 
         {/* Toolbar */}
-        <div style={{
-          padding: '10px 14px', display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between', gap: '10px',
-          borderBottom: '1px solid #F1F5F9', background: '#FAFBFC',
-        }}>
-          <div style={{ position: 'relative', maxWidth: '240px', flex: 1 }}>
-            <span style={{
-              position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)',
-              color: '#94A3B8', display: 'flex', alignItems: 'center', pointerEvents: 'none',
-            }}>
-              <IconSearch />
-            </span>
+        <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', borderBottom: '1px solid #f1f5f9', background: '#fafbfc' }}>
+          <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '260px' }}>
+            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex', pointerEvents: 'none' }}><IconSearch /></span>
             <input
-              className="ps-input"
               placeholder="Search products…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: '30px', borderRadius: '999px', fontSize: '12px', padding: '7px 12px 7px 30px' }}
+              style={{ width: '100%', boxSizing: 'border-box', padding: '7px 10px 7px 30px', fontSize: '12.5px', fontFamily: 'inherit', border: '1.5px solid #e2e8f0', borderRadius: '8px', background: '#fff', color: '#0D1B3E', outline: 'none' }}
             />
           </div>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '5px',
-            padding: '3px 10px',
-            background: filtered.length === 0 ? '#F1F5F9' : '#EEF2FF',
-            border: `1px solid ${filtered.length === 0 ? '#E2E8F0' : '#C7D2FE'}`,
-            borderRadius: '999px', fontSize: '10.5px', fontWeight: 700,
-            color: filtered.length === 0 ? '#94A3B8' : '#4338CA',
-          }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: filtered.length === 0 ? '#94A3B8' : '#4338CA' }} />
-            {filtered.length} / {products.length} products
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 11px', background: '#0D1B3E', borderRadius: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#F0A500' }}>{filtered.length}</span>
+            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>product{filtered.length !== 1 ? 's' : ''}</span>
           </div>
         </div>
 
@@ -447,40 +364,24 @@ export default function ManageProductsPage() {
           <table className="ps-table">
             <thead>
               <tr>
-                <th style={{ width: '32px', textAlign: 'center' }}>#</th>
+                <th style={{ width: '36px' }}>#</th>
                 <th>Product Name</th>
-                <th style={{ width: '72px' }}>Unit</th>
+                <th style={{ width: '68px' }}>Unit</th>
                 <th style={{ textAlign: 'right' }}>Stock</th>
                 <th style={{ textAlign: 'right' }}>Rate</th>
-                <th style={{ textAlign: 'right' }}>Value</th>
-                <th style={{ textAlign: 'center', width: '110px' }}>Status</th>
-                <th style={{ textAlign: 'center', width: '148px' }}>Actions</th>
+                <th style={{ textAlign: 'right' }}>Stock Value</th>
+                <th style={{ textAlign: 'center', width: '100px' }}>Status</th>
+                <th style={{ textAlign: 'center', width: '76px' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '9px' }}>
-                      <div style={{
-                        width: '44px', height: '44px', borderRadius: '12px',
-                        background: '#F1F5F9', border: '1px solid #E2E8F0',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8',
-                      }}>
-                        <IconPackage />
-                      </div>
-                      <p style={{ fontWeight: 700, color: '#475569', margin: 0, fontSize: '12.5px' }}>
-                        {search ? 'No products match your search' : 'No products yet'}
-                      </p>
-                      {!search && (
-                        <Link href="/dashboard/products/add" style={{
-                          fontSize: '11.5px', color: '#0D1B3E', textDecoration: 'none',
-                          fontWeight: 600, padding: '5px 13px',
-                          background: '#EEF2F7', borderRadius: '7px', border: '1px solid #E2E8F0',
-                        }}>
-                          + Add your first product
-                        </Link>
-                      )}
+                  <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '7px' }}>
+                      <span style={{ opacity: 0.25, color: '#0D1B3E' }}><IconPackage /></span>
+                      <p style={{ fontWeight: 700, margin: 0, fontSize: '13px', color: '#64748b' }}>{search ? 'No products match your search' : 'No products yet'}</p>
+                      {!search && <Link href="/dashboard/products/add" style={{ fontSize: '12px', color: '#0D1B3E', textDecoration: 'none', fontWeight: 600 }}>Add first product →</Link>}
                     </div>
                   </td>
                 </tr>
@@ -490,129 +391,50 @@ export default function ManageProductsPage() {
                 const noRate    = parseFloat(p.rate || 0) === 0;
                 const unitStyle = UNIT_STYLE[p.unit] || UNIT_STYLE['Unit'];
                 const unitDisp  = p.unit === 'Cubic Meter' ? 'Cu.M' : p.unit;
-
                 return (
                   <tr key={p.id}>
-
-                    {/* # */}
-                    <td style={{ textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        width: '20px', height: '20px', borderRadius: '5px',
-                        background: '#F8FAFC', fontSize: '10px', fontWeight: 700, color: '#CBD5E1',
-                        border: '1px solid #F1F5F9',
-                      }}>{i + 1}</span>
-                    </td>
-
-                    {/* Name + optional HSN */}
+                    <td style={{ color: '#94a3b8', fontSize: '11.5px', fontWeight: 700 }}>{i + 1}</td>
                     <td>
                       <div style={{ fontWeight: 700, color: '#0D1B3E', fontSize: '12.5px' }}>{p.name}</div>
-                      {p.hsnCode && (
-                        <div style={{ fontSize: '10px', color: '#94A3B8', marginTop: '1px' }}>HSN: {p.hsnCode}</div>
-                      )}
+                      {p.hsnCode && <div style={{ fontSize: '10px', color: '#94a3b8', marginTop: '1px' }}>HSN: {p.hsnCode}</div>}
                     </td>
-
-                    {/* Unit */}
                     <td>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center',
-                        padding: '2px 8px', borderRadius: '5px',
-                        fontSize: '10.5px', fontWeight: 700,
-                        background: unitStyle.bg, color: unitStyle.color,
-                        border: `1px solid ${unitStyle.border}`,
-                      }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', padding: '2px 8px', borderRadius: '5px', fontSize: '10.5px', fontWeight: 700, background: unitStyle.bg, color: unitStyle.color, border: `1px solid ${unitStyle.border}` }}>
                         {unitDisp}
                       </span>
                     </td>
-
-                    {/* Stock */}
                     <td style={{ textAlign: 'right' }}>
-                      <span style={{
-                        fontWeight: 700, fontSize: '12.5px',
-                        color: parseFloat(p.stock || 0) === 0 ? '#DC2626'
-                          : parseFloat(p.stock || 0) < 500 ? '#DC2626' : '#059669',
-                      }}>
-                        {fmt(p.stock)}
-                      </span>
-                      <span style={{ fontSize: '9.5px', color: '#CBD5E1', marginLeft: '3px' }}>{unitDisp}</span>
+                      <span style={{ fontWeight: 700, fontSize: '12.5px', color: parseFloat(p.stock||0)===0 ? '#DC2626' : parseFloat(p.stock||0)<500 ? '#D97706' : '#059669', fontVariantNumeric: 'tabular-nums' }}>{fmt(p.stock)}</span>
+                      <span style={{ fontSize: '9.5px', color: '#CBD5E1', marginLeft: '2px' }}>{unitDisp}</span>
                     </td>
-
-                    {/* Rate */}
-                    <td style={{ textAlign: 'right', fontSize: '12px' }}>
-                      {noRate
-                        ? <span style={{ color: '#DC2626', fontWeight: 600, fontSize: '11px' }}>Not set</span>
-                        : <><span style={{ color: '#94A3B8', fontSize: '10px' }}>Rs. </span><span style={{ color: '#1E293B', fontWeight: 600 }}>{fmt(p.rate)}</span></>
-                      }
+                    <td style={{ textAlign: 'right', fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>
+                      {noRate ? <span style={{ color: '#DC2626', fontWeight: 600, fontSize: '11px' }}>Not set</span>
+                        : <><span style={{ color: '#94a3b8', fontSize: '10px' }}>Rs. </span><span style={{ color: '#1E293B', fontWeight: 600 }}>{fmt(p.rate)}</span></>}
                     </td>
-
-                    {/* Stock Value */}
-                    <td style={{ textAlign: 'right' }}>
-                      <span style={{ fontWeight: 700, fontSize: '12px', color: stockVal > 0 ? '#059669' : '#CBD5E1' }}>
-                        {stockVal > 0 ? `Rs. ${fmt(stockVal)}` : '—'}
-                      </span>
+                    <td style={{ textAlign: 'right', fontWeight: 700, fontSize: '12px', color: stockVal>0 ? '#059669' : '#CBD5E1', fontVariantNumeric: 'tabular-nums' }}>
+                      {stockVal > 0 ? `Rs. ${fmt(stockVal)}` : '—'}
                     </td>
-
-                    {/* Status */}
                     <td style={{ textAlign: 'center' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '4px',
-                        padding: '3px 9px', borderRadius: '999px',
-                        fontSize: '10px', fontWeight: 700,
-                        background: status.bg, color: status.color,
-                        border: `1px solid ${status.border}`,
-                      }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 9px', borderRadius: '999px', fontSize: '10px', fontWeight: 700, background: status.bg, color: status.color, border: `1px solid ${status.border}` }}>
                         <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: status.dot, flexShrink: 0 }} />
                         {status.label}
                       </span>
                     </td>
-
-                    {/* Actions */}
-                    <td>
-                      <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
-                        <button
-                          onClick={() => setEditProduct(p)}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '4px',
-                            padding: '5px 11px', borderRadius: '6px',
-                            fontSize: '11px', fontWeight: 600,
-                            background: '#EFF6FF', color: '#1D4ED8',
-                            border: '1px solid #BFDBFE', cursor: 'pointer', fontFamily: 'inherit',
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.background = '#DBEAFE'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = '#EFF6FF'; }}
-                        >
-                          <IconEdit /> Edit
-                        </button>
-                        <button
-                          onClick={() => { setDeleteId(p.id); setDeleteName(p.name); }}
-                          style={{
-                            display: 'inline-flex', alignItems: 'center', gap: '4px',
-                            padding: '5px 11px', borderRadius: '6px',
-                            fontSize: '11px', fontWeight: 600,
-                            background: '#FEF2F2', color: '#DC2626',
-                            border: '1px solid #FECACA', cursor: 'pointer', fontFamily: 'inherit',
-                          }}
-                          onMouseEnter={e => { e.currentTarget.style.background = '#FEE2E2'; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = '#FEF2F2'; }}
-                        >
-                          <IconTrash /> Delete
-                        </button>
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                        <ActionBtn onClick={() => setEditProduct(p)} icon={<IconEdit />} bg="#eff6ff" color="#2563eb" border="#93c5fd" title="Edit product" />
+                        <ActionBtn onClick={() => { setDeleteId(p.id); setDeleteName(p.name); }} icon={<IconTrash />} bg="#fef2f2" color="#ef4444" border="#fca5a5" title="Delete product" />
                       </div>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
-
             {filtered.length > 0 && (
               <tfoot>
                 <tr>
-                  <td colSpan={5} style={{ color: '#0D1B3E', fontWeight: 700, fontSize: '12px' }}>
-                    Total Stock Value
-                  </td>
-                  <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '13px', color: '#059669' }}>
-                    Rs. {fmt(totalStockValue)}
-                  </td>
+                  <td colSpan={5} style={{ padding: '10px 16px', fontWeight: 700, fontSize: '12px', color: '#0D1B3E' }}>Total Stock Value</td>
+                  <td style={{ padding: '10px 14px', textAlign: 'right', fontWeight: 800, fontSize: '13px', color: '#059669', fontVariantNumeric: 'tabular-nums' }}>Rs. {fmt(totalStockValue)}</td>
                   <td colSpan={2} />
                 </tr>
               </tfoot>

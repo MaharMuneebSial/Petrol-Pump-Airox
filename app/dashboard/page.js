@@ -43,48 +43,6 @@ function getGreeting() {
   return 'Good Evening';
 }
 
-// ── Compact Stat Card ────────────────────────
-function StatCard({ Icon, label, value, color, iconBg, sub, accentColor, isNumeric, numValue }) {
-  return (
-    <div className="ps-stat-card" style={{
-      cursor: 'default',
-      borderLeft: `3px solid ${accentColor}`,
-      borderBottom: 'none',
-    }}>
-      <div style={{ padding: '10px 12px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '32px', height: '32px', borderRadius: '8px', flexShrink: 0,
-            background: iconBg,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: accentColor,
-          }}>
-            <Icon />
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: '9px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '0 0 1px' }}>
-              {label}
-            </p>
-            <p style={{ fontSize: '15px', fontWeight: 800, color, margin: 0, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-              {isNumeric ? <AnimatedNumber value={numValue} prefix="Rs. " /> : value}
-            </p>
-          </div>
-          <span style={{
-            display: 'flex', alignItems: 'center', gap: '3px',
-            fontSize: '9px', fontWeight: 700, color: '#10b981',
-            background: '#dcfce7', padding: '2px 6px', borderRadius: '99px',
-            alignSelf: 'flex-start',
-          }}>
-            <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10b981', animation: 'livePulse 2s ease-in-out infinite' }} />
-            Live
-          </span>
-        </div>
-        {sub && <p style={{ fontSize: '9px', color: '#b0b8c8', margin: '4px 0 0 42px' }}>{sub}</p>}
-      </div>
-    </div>
-  );
-}
-
 // ── Compact Stock Row ────────────────────────
 function StockRow({ name, stock, unit, rate, maxStock = 10000 }) {
   const value = stock * rate;
@@ -246,63 +204,82 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Monthly Summary ── */}
+        {/* ── Performance Overview ── */}
         <div className="ps-card" style={{ overflow: 'hidden' }}>
-          <div style={{
-            padding: '10px 16px', borderBottom: '1px solid #f1f5f9',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}>
+
+          {/* ── Card Header ── */}
+          <div style={{ padding: '11px 18px', borderBottom: '1px solid #f1f5f9', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{
-                width: '28px', height: '28px', borderRadius: '7px',
-                background: 'linear-gradient(135deg, #0f1f5c, #1e3a8a)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-              }}>
+              <div style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'linear-gradient(135deg,#0D1B3E,#1e3a8a)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
                 <IconCalendar />
               </div>
-              <h2 style={{ fontWeight: 700, fontSize: '13px', color: '#0f1f5c', margin: 0 }}>Monthly Sales Summary</h2>
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0D1B3E' }}>Performance Overview</span>
             </div>
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#0f1f5c', background: '#eff6ff', padding: '3px 10px', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: '#2563eb', background: '#eff6ff', padding: '3px 10px', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
               {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
             </span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+
+          {/* ── This Month label ── */}
+          <div style={{ padding: '8px 18px 0', background: '#fff' }}>
+            <span style={{ fontSize: '9px', fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.12em' }}>This Month</span>
+          </div>
+
+          {/* ── Monthly row — 3 cols ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: '#fff', borderBottom: '1px solid #f1f5f9' }}>
             {[
-              { label: 'Total Sale Amount', value: summary.monthlySaleAmt, prefix: 'Rs. ', color: '#10b981', bg: 'linear-gradient(145deg, #f0fdf4, #dcfce7)', iconBg: '#10b981', Icon: IconCash },
-              { label: 'Petrol Sold', value: summary.petrolLtr, suffix: ' Ltr', color: '#0f1f5c', bg: 'linear-gradient(145deg, #eff6ff, #dbeafe)', iconBg: '#0f1f5c', Icon: IconFuel },
-              { label: 'Diesel Sold', value: summary.dieselLtr, suffix: ' Ltr', color: '#475569', bg: 'linear-gradient(145deg, #f8fafc, #f1f5f9)', iconBg: '#64748b', Icon: IconBarrel },
+              { label: 'Sale Amount',  value: summary.monthlySaleAmt, prefix: 'Rs. ', color: '#059669', iconBg: '#f0fdf4', Icon: IconCash },
+              { label: 'Petrol Sold',  value: summary.petrolLtr,      suffix: ' Ltr', color: '#2563eb', iconBg: '#eff6ff', Icon: IconFuel },
+              { label: 'Diesel Sold',  value: summary.dieselLtr,      suffix: ' Ltr', color: '#d97706', iconBg: '#fffbeb', Icon: IconBarrel },
             ].map((item, i) => (
               <div key={item.label} style={{
-                padding: '10px 12px', background: item.bg,
-                borderRight: i < 2 ? '1px solid rgba(226,232,240,0.5)' : 'none',
-                textAlign: 'center',
+                padding: '10px 18px 16px',
+                borderRight: i < 2 ? '1px solid #f1f5f9' : 'none',
               }}>
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '7px',
-                  background: item.iconBg,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', margin: '0 auto 6px',
-                  boxShadow: `0 2px 8px ${item.iconBg}40`,
-                }}>
-                  <item.Icon />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '8px', background: item.iconBg, border: `1px solid ${item.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, flexShrink: 0 }}>
+                    <item.Icon />
+                  </div>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b' }}>{item.label}</span>
                 </div>
-                <p style={{ fontSize: '16px', fontWeight: 800, color: item.color, margin: '0 0 2px', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+                <p style={{ margin: 0, fontSize: '22px', fontWeight: 800, color: item.color, letterSpacing: '-0.03em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                   <AnimatedNumber value={item.value} prefix={item.prefix || ''} suffix={item.suffix || ''} />
-                </p>
-                <p style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>
-                  {item.label}
                 </p>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* ── Stat Cards ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px' }} className="lg:grid-cols-4">
-          <StatCard Icon={IconUsers} label="Total Accounts" value={summary.accountsCount} color="#0f1f5c" iconBg="#eff6ff" accentColor="#0f1f5c" sub="Customers & Suppliers" />
-          <StatCard Icon={IconCart} label="Total Purchases" value={`Rs. ${fmt(summary.totalPurchaseAmt)}`} color="#7c3aed" iconBg="#f5f3ff" accentColor="#7c3aed" sub="All time" isNumeric numValue={summary.totalPurchaseAmt} />
-          <StatCard Icon={IconTrending} label="Total Sales" value={`Rs. ${fmt(summary.totalSaleAmt)}`} color="#10b981" iconBg="#f0fdf4" accentColor="#10b981" sub="All time" isNumeric numValue={summary.totalSaleAmt} />
-          <StatCard Icon={IconExpense} label="Total Expenses" value={`Rs. ${fmt(summary.totalExpenseAmt)}`} color="#ef4444" iconBg="#fef2f2" accentColor="#ef4444" sub="All time" isNumeric numValue={summary.totalExpenseAmt} />
+          {/* ── All Time label ── */}
+          <div style={{ padding: '8px 18px 0', background: '#f8fafc' }}>
+            <span style={{ fontSize: '9px', fontWeight: 700, color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.12em' }}>All Time</span>
+          </div>
+
+          {/* ── All-time row — 4 cols ── */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f8fafc' }}>
+            {[
+              { label: 'Total Accounts',  sub: 'Customers & Suppliers', color: '#2563eb', Icon: IconUsers,    isNum: false, val: summary.accountsCount },
+              { label: 'Total Purchases', sub: 'Cumulative',             color: '#7c3aed', Icon: IconCart,     isNum: true,  val: summary.totalPurchaseAmt },
+              { label: 'Total Sales',     sub: 'Cumulative',             color: '#059669', Icon: IconTrending, isNum: true,  val: summary.totalSaleAmt },
+              { label: 'Total Expenses',  sub: 'Cumulative',             color: '#e11d48', Icon: IconExpense,  isNum: true,  val: summary.totalExpenseAmt },
+            ].map((item, i) => (
+              <div key={item.label} style={{
+                padding: '10px 18px 14px',
+                borderRight: i < 3 ? '1px solid #eff2f7' : 'none',
+                display: 'flex', flexDirection: 'column', gap: '6px',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: `${item.color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, flexShrink: 0 }}>
+                    <item.Icon />
+                  </div>
+                  <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{item.label}</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0D1B3E', letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+                  {item.isNum ? <AnimatedNumber value={item.val} prefix="Rs. " /> : item.val}
+                </p>
+                <p style={{ margin: 0, fontSize: '9.5px', color: '#b0b8c9', fontWeight: 500 }}>{item.sub}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Main Grid: Stock + Sidebar ── */}
@@ -363,17 +340,14 @@ export default function DashboardPage() {
           {/* Right column */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {/* Cash in Hand */}
-            <div className="ps-card" style={{ padding: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <div style={{
-                  width: '24px', height: '24px', borderRadius: '6px',
-                  background: 'linear-gradient(135deg, #10b981, #059669)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-                }}>
+            <div className="ps-card" style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '10px 14px', borderBottom: '1px solid #f1f5f9', background: '#FAFBFC', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #10b981, #059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                   <IconCash />
                 </div>
                 <h2 style={{ fontWeight: 700, fontSize: '12px', color: '#0f1f5c', margin: 0 }}>Cash in Hand</h2>
               </div>
+              <div style={{ padding: '10px 12px' }}>
               <div style={{
                 borderRadius: '8px', padding: '12px',
                 background: 'linear-gradient(135deg, #0a1540, #0f1f5c)',
@@ -413,45 +387,43 @@ export default function DashboardPage() {
                   Payment
                 </Link>
               </div>
+              </div>
             </div>
 
             {/* Quick Actions */}
-            <div className="ps-card" style={{ padding: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <div style={{
-                  width: '24px', height: '24px', borderRadius: '6px',
-                  background: 'linear-gradient(135deg, #2563EB, #1D4ED8)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-                }}>
+            <div className="ps-card" style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '10px 14px', borderBottom: '1px solid #f1f5f9', background: '#FAFBFC', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: 'linear-gradient(135deg, #f59e0b, #d97706)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
                   <IconLightning />
                 </div>
                 <h2 style={{ fontWeight: 700, fontSize: '12px', color: '#0f1f5c', margin: 0 }}>Quick Actions</h2>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+              <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {[
-                  { label: 'Add Sale', href: '/dashboard/sales/add', Icon: IconTrending, color: '#10b981', bg: '#f0fdf4', border: '#bbf7d0', perm: 'sales_add' },
-                  { label: 'Add Purchase', href: '/dashboard/purchase/add', Icon: IconCart, color: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', perm: 'purchase' },
-                  { label: 'Add Account', href: '/dashboard/accounts/add', Icon: IconUsers, color: '#0f1f5c', bg: '#eff6ff', border: '#bfdbfe', perm: 'accounts' },
-                  { label: 'Reports', href: '/dashboard/reports/summary-sheet', Icon: IconManage, color: '#475569', bg: '#f8fafc', border: '#e2e8f0', perm: 'reports' },
+                  { label: 'Add Sale',      desc: 'Record a new fuel sale',        href: '/dashboard/sales/add',                Icon: IconTrending, color: '#059669', grad: 'linear-gradient(135deg,#059669,#10b981)', bg: '#f0fdf4', border: '#bbf7d0', perm: 'sales_add' },
+                  { label: 'Add Purchase',  desc: 'Log a fuel purchase entry',      href: '/dashboard/purchase/add',             Icon: IconCart,     color: '#7c3aed', grad: 'linear-gradient(135deg,#7c3aed,#8b5cf6)', bg: '#f5f3ff', border: '#ddd6fe', perm: 'purchase' },
+                  { label: 'Add Account',   desc: 'Register customer / supplier',   href: '/dashboard/accounts/add',             Icon: IconUsers,    color: '#2563eb', grad: 'linear-gradient(135deg,#1d4ed8,#2563eb)', bg: '#eff6ff', border: '#bfdbfe', perm: 'accounts' },
+                  { label: 'View Reports',  desc: 'Sales & expense summary',        href: '/dashboard/reports/summary-sheet',    Icon: IconManage,   color: '#d97706', grad: 'linear-gradient(135deg,#d97706,#f59e0b)', bg: '#fffbeb', border: '#fde68a', perm: 'reports'   },
                 ].filter(a => canAccess(a.perm)).map(a => (
                   <Link key={a.label} href={a.href} style={{
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
-                    padding: '8px 6px', borderRadius: '8px',
-                    background: a.bg, border: `1px solid ${a.border}`,
-                    textDecoration: 'none', textAlign: 'center',
-                    transition: 'all 0.2s',
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    padding: '8px 10px', borderRadius: '9px',
+                    background: a.bg, border: `1.5px solid ${a.border}`,
+                    textDecoration: 'none', transition: 'all 0.15s',
                   }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(3px)'; e.currentTarget.style.boxShadow = `0 3px 12px ${a.color}25`; }}
                     onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
                   >
-                    <span style={{
-                      width: '26px', height: '26px', borderRadius: '6px',
-                      background: `${a.color}10`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: a.color,
-                    }}>
+                    <div style={{ width: '34px', height: '34px', borderRadius: '9px', flexShrink: 0, background: a.grad, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: `0 3px 8px ${a.color}40` }}>
                       <a.Icon />
-                    </span>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: a.color }}>{a.label}</span>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: '#0D1B3E', lineHeight: 1.2 }}>{a.label}</p>
+                      <p style={{ margin: '1px 0 0', fontSize: '10px', color: '#94a3b8', fontWeight: 500 }}>{a.desc}</p>
+                    </div>
+                    <div style={{ color: a.color, display: 'flex', alignItems: 'center', opacity: 0.6, flexShrink: 0 }}>
+                      <IconArrowRight />
+                    </div>
                   </Link>
                 ))}
               </div>
